@@ -1,31 +1,54 @@
-let camera, scene, renderer, cube
+// app.js
+import * as THREE from 'three';
 
-function init () {
-  camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 )
-  camera.position.z = 1
+// Scene setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('scene-container').appendChild(renderer.domElement);
 
-  scene = new THREE.Scene()
+// Create floating bubbles
+const bubbles = [];
 
-  const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5)
-  const material = new THREE.MeshNormalMaterial()
+for (let i = 0; i < 100; i++) {
+    const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
+    const bubble = new THREE.Mesh(geometry, material);
 
-  cube = new THREE.Mesh(geometry, material)
-  scene.add(cube)
+    bubble.position.x = (Math.random() - 0.5) * 10;
+    bubble.position.y = (Math.random() - 0.5) * 10;
+    bubble.position.z = (Math.random() - 0.5) * 10;
 
-  renderer = new THREE.WebGLRenderer({ antialias: true })
-  renderer.setSize(window.innerWidth, window.innerHeight)
-  document.body.appendChild(renderer.domElement)
-
-  animate()
+    bubbles.push(bubble);
+    scene.add(bubble);
 }
 
-function animate () {
-  requestAnimationFrame(animate)
+// Camera position
+camera.position.z = 5;
 
-  cube.rotation.x += 0.01
-  cube.rotation.y += 0.01
+// Animation loop
+const animate = () => {
+    requestAnimationFrame(animate);
 
-  renderer.render(scene, camera)
-}
+    bubbles.forEach((bubble) => {
+        bubble.rotation.x += 0.005;
+        bubble.rotation.y += 0.005;
+    });
 
-init()
+    renderer.render(scene, camera);
+};
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+
+    camera.aspect = newWidth / newHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(newWidth, newHeight);
+});
+
+// Start the animation loop
+animate();
