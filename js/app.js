@@ -1,5 +1,9 @@
 // Import necessary Three.js components
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { AnaglyphShader } from 'three/examples/jsm/shaders/AnaglyphShader.js';
 
 // Create a scene
 const scene = new THREE.Scene();
@@ -19,6 +23,14 @@ const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 const cube = new THREE.Mesh(geometry, material);
 scene.add(cube);
 
+// Add post-processing effects
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const anaglyphPass = new ShaderPass(AnaglyphShader);
+anaglyphPass.uniforms['scale'].value = 0.01;
+composer.addPass(anaglyphPass);
+
 // Animation function
 const animate = () => {
     requestAnimationFrame(animate);
@@ -27,7 +39,7 @@ const animate = () => {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
 
-    renderer.render(scene, camera);
+    composer.render();
 };
 
 // Handle window resizing
@@ -39,6 +51,7 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 
     renderer.setSize(newWidth, newHeight);
+    composer.setSize(newWidth, newHeight);
 });
 
 animate();
