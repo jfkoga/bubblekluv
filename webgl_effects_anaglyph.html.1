@@ -29,12 +29,6 @@
 
 			import * as THREE from 'three';
 
-			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
-
-
-
 			import { AnaglyphEffect } from 'three/addons/effects/AnaglyphEffect.js';
 
 			let container, camera, scene, renderer, effect;
@@ -91,37 +85,6 @@
 					spheres.push( mesh );
 
 				}
-
-
-			function init() {
-
-				new RGBELoader()
-					.setPath( 'textures/equirectangular/' )
-					.load( 'royal_esplanade_1k.hdr', function ( texture ) {
-
-						texture.mapping = THREE.EquirectangularReflectionMapping;
-
-						scene.background = texture;
-						scene.environment = texture;
-
-						render();
-
-						// model
-
-						const loader = new GLTFLoader().setPath( 'models/gltf/DamagedHelmet/glTF/' );
-						loader.load( 'DamagedHelmet.gltf', function ( gltf ) {
-
-							scene.add( gltf.scene );
-
-							render();
-
-						} );
-
-					} );
-
-
-
-
 
 				//
 
