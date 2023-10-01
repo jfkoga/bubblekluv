@@ -34,7 +34,14 @@
 			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 			import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
+
+
+			import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
 			let container, camera, scene, renderer, effect;
+
+			let object;
 
 			const spheres = [];
 
@@ -89,7 +96,55 @@
 
 				}
 
+				function loadModel() {
+
+					object.traverse( function ( child ) {
+
+						if ( child.isMesh ) child.material.map = texture;
+
+					} );
+
+					object.position.y = - 0.95;
+					object.scale.setScalar( 0.01 );
+					scene.add( object );
+
+					render();
+
+				}
+
+				const manager = new THREE.LoadingManager( loadModel );
+
+				// texture
+
+				const textureLoader = new THREE.TextureLoader( manager );
+				const texture = textureLoader.load( 'textures/uv_grid_opengl.jpg', render );
+				texture.colorSpace = THREE.SRGBColorSpace;
+
+				// model
+
+				function onProgress( xhr ) {
+
+					if ( xhr.lengthComputable ) {
+
+						const percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+
+					}
+
+				}
+				function onError() {}
+
+				const loader = new OBJLoader( manager );
+				loader.load( 'models/obj/male02/male02.obj', function ( obj ) {
+
+					object = obj;
+
+				}, onProgress, onError );
+
+	
+
 				//
+				
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -102,6 +157,20 @@
 				effect.setSize( width, height );
 
 				//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 				window.addEventListener( 'resize', onWindowResize );
 
