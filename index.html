@@ -2,59 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Three.js Bubbles with Anaglyph Effect</title>
-    <style>
-        body { margin: 0; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Audio Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <script>
-        // Set up scene, camera, and renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Create anaglyph effect
-        const effect = new THREE.AnaglyphEffect(renderer);
-
-        // Create bubbles
-        const bubbleGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-        const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        
-        const bubbles = [];
-        for (let i = 0; i < 100; i++) {
-            const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
-            bubble.position.set(
-                Math.random() * 10 - 5,
-                Math.random() * 10 - 5,
-                Math.random() * 10 - 5
-            );
-            bubbles.push(bubble);
-            scene.add(bubble);
-        }
-
-        // Set camera position
-        camera.position.z = 5;
-
-        // Animation function
-        const animate = () => {
-            requestAnimationFrame(animate);
-
-            // Rotate bubbles
-            bubbles.forEach(bubble => {
-                bubble.rotation.x += 0.01;
-                bubble.rotation.y += 0.01;
-            });
-
-            // Render scene with anaglyph effect
-            effect.render(scene, camera);
-        };
-
-        animate();
-    </script>
+    <input type="file" id="audioInput" accept=".mp3, .ogg" />
+    <canvas id="visualizer"></canvas>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
