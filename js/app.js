@@ -1,4 +1,6 @@
+// Importar Three.js desde la carpeta local "build"
 import * as THREE from '../build/three.module.js';
+// Importar el efecto ParallaxBarrierEffect desde un CDN
 import { ParallaxBarrierEffect } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/effects/ParallaxBarrierEffect.js';
 
 // Configuración de la escena
