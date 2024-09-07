@@ -1,73 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Three.js Anaglyph Effect</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-    </style>
+    <meta name="description" content="Una página sencilla de ejemplo similar al enlace proporcionado." />
+    <title>Ejemplo de Página Minimalista</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <script type="module">
-      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.module.js";
-      import { AnaglyphEffect } from "https://cdn.jsdelivr.net/npm/three@0.155.0/examples/jsm/effects/AnaglyphEffect.js";
+    <div class="container">
+      <h1>ようこそ</h1> <!-- Bienvenido en japonés -->
+      <p>このページはサンプルページです。</p> <!-- Este sitio es un sitio de ejemplo -->
       
-      let camera, scene, renderer, effect;
-      let sphere;
+      <div class="buttons">
+        <a href="#" class="button">リンク 1</a> <!-- Enlace 1 -->
+        <a href="#" class="button">リンク 2</a> <!-- Enlace 2 -->
+      </div>
+    </div>
 
-      const width = window.innerWidth || 2;
-      const height = window.innerHeight || 2;
-
-      init();
-      animate();
-
-      function init() {
-        // Set up the scene, camera, and renderer
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-        camera.position.z = 2;
-
-        // Sphere Geometry and Material
-        const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-        const material = new THREE.MeshNormalMaterial();
-        sphere = new THREE.Mesh(geometry, material);
-        scene.add(sphere);
-
-        // Renderer and Effect
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize(width, height);
-        document.body.appendChild(renderer.domElement);
-
-        effect = new AnaglyphEffect(renderer);
-        effect.setSize(width, height);
-
-        window.addEventListener("resize", onWindowResize);
-      }
-
-      function onWindowResize() {
-        const width = window.innerWidth || 2;
-        const height = window.innerHeight || 2;
-
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-        effect.setSize(width, height);
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-
-        // Rotate the sphere for some movement
-        sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.01;
-
-        // Render using the Anaglyph effect
-        effect.render(scene, camera);
-      }
-    </script>
+    <!-- Si necesitas agregar JavaScript -->
+    <script src="script.js"></script>
   </body>
 </html>
