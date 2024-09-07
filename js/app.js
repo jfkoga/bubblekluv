@@ -82,3 +82,4 @@ window.addEventListener('resize', () => {
     renderer.setSize(width, height);
     effect.setSize(width, height);
 });
+
