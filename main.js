@@ -1,6 +1,8 @@
 let container;
 let camera, scene, renderer;
-let effect, cube;
+let effect;
+
+let sphere, light;
 
 init();
 animate();
@@ -8,23 +10,36 @@ animate();
 function init() {
     container = document.getElementById('container');
 
+    // Crear la escena
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 5;
+    // Crear la cámara
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 1000);
+    camera.position.z = 500;
 
+    // Crear la luz
+    light = new THREE.PointLight(0xffffff, 1.5);
+    light.position.set(500, 500, 500);
+    scene.add(light);
+
+    // Crear el renderizador
     renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
+    // Crear el efecto Anaglyph
     effect = new THREE.AnaglyphEffect(renderer);
     effect.setSize(window.innerWidth, window.innerHeight);
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    // Crear geometría
+    const geometry = new THREE.SphereGeometry(200, 32, 16);
+    const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, flatShading: true });
 
+    sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
+
+    // Ajustar tamaño de la ventana
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -36,7 +51,9 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+
+    sphere.rotation.y += 0.005;
+
+    // Renderizar con efecto Anaglyph
     effect.render(scene, camera);
 }
