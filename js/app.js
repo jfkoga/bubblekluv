@@ -1,4 +1,5 @@
 import * as THREE from '../build/three.module.js';
+import { ParallaxBarrierEffect } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/effects/ParallaxBarrierEffect.js';
 
 // Configuración de la escena
 const scene = new THREE.Scene();
@@ -12,10 +13,10 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Crear las burbujas (esferas)
+// Crear burbujas (esferas)
 const bubbles = [];
 const bubbleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const bubbleMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+const bubbleMaterial = new THREE.MeshPhongMaterial({ color: 0x88ccff, transparent: true, opacity: 0.6 });
 
 for (let i = 0; i < 50; i++) {
     const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
@@ -37,16 +38,22 @@ for (let i = 0; i < 50; i++) {
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 scene.add(directionalLight);
 
-// Animación
+// Configurar el efecto Parallax Barrier
+const effect = new ParallaxBarrierEffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
+
+// Función de animación
 function animate() {
     requestAnimationFrame(animate);
 
-    // Actualizar posición de las burbujas
+    // Actualizar la posición de las burbujas
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.velocity);
+
+        // Reposicionar la burbuja si se sale de los límites
         if (bubble.position.length() > 5) {
             bubble.position.set(
                 (Math.random() - 0.5) * 10,
@@ -56,15 +63,20 @@ function animate() {
         }
     });
 
-    renderer.render(scene, camera);
+    // Renderizar la escena con el efecto Parallax Barrier
+    effect.render(scene, camera);
 }
 
 animate();
 
-// Ajuste de tamaño en caso de cambio de ventana
+// Ajustar el tamaño del renderizador si se cambia el tamaño de la ventana
 window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    
+    camera.aspect = width / height;
     camera.updateProjectionMatrix();
-});
 
+    renderer.setSize(width, height);
+    effect.setSize(width, height);
+});
