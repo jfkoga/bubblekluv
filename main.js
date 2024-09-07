@@ -1,64 +1,56 @@
-// Import Three.js library
-import * as THREE from 'https://threejs.org/build/three.module.js';
+// Variables principales
+let container;
+let camera, scene, renderer;
+let effect; // Para el efecto Anaglyph
+let cube;
 
-// Set up scene, camera, and renderer
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+init();
+animate();
 
-// Create audio element
-const audioElement = document.createElement('audio');
-audioElement.controls = true;
-document.body.appendChild(audioElement);
+function init() {
+    // Obtener el contenedor
+    container = document.getElementById('container');
 
-// Create audio context
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // Crear la escena
+    scene = new THREE.Scene();
 
-// Set up audio analyser
-const analyser = audioContext.createAnalyser();
-const source = audioContext.createMediaElementSource(audioElement);
-source.connect(analyser);
-analyser.connect(audioContext.destination);
+    // Crear la cámara
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-analyser.fftSize = 256;
-const bufferLength = analyser.frequencyBinCount;
-const dataArray = new Uint8Array(bufferLength);
+    // Crear el renderizador
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
 
-// Create 3D visualizer
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+    // Crear el efecto Anaglyph
+    effect = new THREE.AnaglyphEffect(renderer);
+    effect.setSize(window.innerWidth, window.innerHeight);
 
-// Set up camera position
-camera.position.z = 5;
+    // Crear un cubo simple
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
 
-// Handle file input change
-document.getElementById('audioInput').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    const objectURL = URL.createObjectURL(file);
+    // Ajustar el tamaño al cambiar el tamaño de la ventana
+    window.addEventListener('resize', onWindowResize, false);
+}
 
-    // Load audio file and play
-    audioElement.src = objectURL;
-    audioElement.play();
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    effect.setSize(window.innerWidth, window.innerHeight);
+}
 
-    // Connect audio element to the analyser
-    source.connect(analyser);
+function animate() {
+    requestAnimationFrame(animate);
 
-    // Render loop
-    const animate = function () {
-        requestAnimationFrame(animate);
+    // Rotar el cubo
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
 
-        // Update cube scale based on audio data
-        analyser.getByteFrequencyData(dataArray);
-        const average = dataArray.reduce((a, b) => a + b, 0) / bufferLength;
-        cube.scale.y = (average / 100) + 1;
+    // Renderizar la escena con el efecto Anaglyph
+    effect.render(scene, camera);
+}
 
-        // Render the scene
-        renderer.render(scene, camera);
-    };
-
-    animate();
-});

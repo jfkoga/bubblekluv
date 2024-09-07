@@ -3,13 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Audio Visualizer</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Anaglyph Effect</title>
+    <link rel="stylesheet" href="style.css"> <!-- Si tienes un archivo CSS -->
 </head>
 <body>
-    <input type="file" id="audioInput" accept=".mp3, .ogg" />
-    <canvas id="visualizer"></canvas>
-    <script src="https://threejs.org/build/three.js"></script>
+    <div id="container"></div> <!-- Contenedor para el canvas -->
+
+    <!-- Cargar la biblioteca Three.js -->
+    <script src="libs/three.min.js"></script>
+    <!-- Cargar el efecto Anaglyph -->
+    <script src="libs/AnaglyphEffect.js"></script>
+    <!-- Cargar el archivo principal de tu código JavaScript -->
     <script src="main.js"></script>
 </body>
 </html>
+
