@@ -54,3 +54,6 @@ function animate() {
     effect.render(scene, camera);
 }
 
+console.log('Three.js version:', THREE.REVISION); // Verifica si Three.js está cargado
+console.log('AnaglyphEffect loaded:', THREE.AnaglyphEffect !== undefined); // Verifica si AnaglyphEffect está cargado
+
