@@ -1,48 +1,69 @@
 import * as THREE from '../build/three.module.js';
-import { AnaglyphEffect } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/effects/AnaglyphEffect.js';
 
-// Crear escena, cámara y renderizador
+// Configuración de la escena
 const scene = new THREE.Scene();
+
+// Configuración de la cámara
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// Configuración del renderizador
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Crear geometría y material para un cubo
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshNormalMaterial();
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// Crear las burbujas (esferas)
+const bubbles = [];
+const bubbleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+const bubbleMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
 
-// Posicionar la cámara
-camera.position.z = 5;
+for (let i = 0; i < 50; i++) {
+    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    bubble.position.set(
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10,
+        (Math.random() - 0.5) * 10
+    );
+    bubble.velocity = new THREE.Vector3(
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01,
+        (Math.random() - 0.5) * 0.01
+    );
+    scene.add(bubble);
+    bubbles.push(bubble);
+}
 
-// Configurar el efecto anaglyph
-const effect = new AnaglyphEffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
+// Añadir luz a la escena
+const ambientLight = new THREE.AmbientLight(0x404040);
+scene.add(ambientLight);
 
-// Función de animación
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+scene.add(directionalLight);
+
+// Animación
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotar el cubo para la animación
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    // Actualizar posición de las burbujas
+    bubbles.forEach(bubble => {
+        bubble.position.add(bubble.velocity);
+        if (bubble.position.length() > 5) {
+            bubble.position.set(
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10,
+                (Math.random() - 0.5) * 10
+            );
+        }
+    });
 
-    // Renderizar la escena con el efecto anaglyph
-    effect.render(scene, camera);
+    renderer.render(scene, camera);
 }
 
 animate();
 
-// Manejo de la ventana de redimensionamiento
+// Ajuste de tamaño en caso de cambio de ventana
 window.addEventListener('resize', () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    
-    camera.aspect = width / height;
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
-    renderer.setSize(width, height);
-    effect.setSize(width, height);
 });
