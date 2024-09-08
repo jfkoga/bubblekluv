@@ -1,40 +1,26 @@
-import * as THREE from './libs/three.module.js';
+import * as THREE from './libs/three.module.js';  // Asegúrate de que la ruta sea correcta
 
-// Configuración básica de la escena
+// Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ alpha: true }); // Activa transparencia
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Cargar el video
-const video = document.createElement('video');
-video.src = 'videos/background.mp4';a
-video.crossOrigin = 'anonymous'; // Asegúrate de que el video pueda ser accedido
-video.loop = true;
-video.muted = true;
-video.autoplay = true;
-video.style.display = 'none'; // Oculta el video en la página
+// Crear burbujas
+const geometry = new THREE.SphereGeometry(1, 32, 32);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.6 });
+const bubble = new THREE.Mesh(geometry, material);
+scene.add(bubble);
 
-// Esperar a que el video esté cargado
-video.addEventListener('canplay', () => {
-    // Crear una textura a partir del video
-    const videoTexture = new THREE.VideoTexture(video);
+camera.position.z = 5;
 
-    // Crear una geometría de burbujas
-    const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const material = new THREE.MeshBasicMaterial({ map: videoTexture });
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
+// Animación
+function animate() {
+    requestAnimationFrame(animate);
+    bubble.rotation.x += 0.01;
+    bubble.rotation.y += 0.01;
+    renderer.render(scene, camera);
+}
 
-    camera.position.z = 5;
-
-    function animate() {
-        requestAnimationFrame(animate);
-        sphere.rotation.x += 0.01;
-        sphere.rotation.y += 0.01;
-        renderer.render(scene, camera);
-    }
-
-    animate();
-});
+animate();

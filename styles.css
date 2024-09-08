@@ -6,17 +6,6 @@ html, body {
     overflow: hidden;
 }
 
-/* Estilo del video para que cubra toda la pantalla */
-#video-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Asegura que el video cubra toda la pantalla */
-    z-index: -1; /* Coloca el video detrás de todo */
-}
-
 /* Estilo del logo centrado */
 #logo {
     position: absolute;
@@ -24,7 +13,7 @@ html, body {
     left: 50%;
     transform: translate(-50%, -50%);
     max-width: 20%; /* Ajusta el tamaño del logo */
-    z-index: 1; /* Coloca el logo sobre el video */
+    z-index: 1; /* Coloca el logo sobre las burbujas */
 }
 
 /* Contenedor de burbujas */
@@ -34,5 +23,4 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0; /* Asegura que las burbujas estén detrás del logo pero delante del video */
-}
+    z-index: 0; /* Asegura que las
