@@ -20,38 +20,24 @@ videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 videoTexture.format = THREE.RGBFormat;
 
-// Material para el video, sin iluminación
-const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
-const planeGeometry = new THREE.PlaneGeometry(16, 9); // Mantener las proporciones 16:9 del video
-const plane = new THREE.Mesh(planeGeometry, videoMaterial);
-scene.add(plane);
+const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
 
-// Ajustar el tamaño del plano del video para cubrir toda la pantalla sin distorsión
-function resizeVideo() {
-    const aspectRatio = window.innerWidth / window.innerHeight;
-    const videoAspect = 16 / 9;
-    
-    if (aspectRatio > videoAspect) {
-        // Pantalla es más ancha que el video
-        plane.scale.set(aspectRatio / videoAspect * 16, 9, 1);
-    } else {
-        // Pantalla es más alta que el video
-        plane.scale.set(16, videoAspect / aspectRatio * 9, 1);
-    }
-    plane.position.set(0, 0, -50); // Alejar el plano del video
-}
-resizeVideo();
+// Skybox o fondo de video
+const skyboxGeometry = new THREE.PlaneGeometry(200, 200);
+const skybox = new THREE.Mesh(skyboxGeometry, videoMaterial);
+skybox.position.set(0, 0, -50);
+scene.add(skybox);
 
-// Crear luces, solo para las burbujas
+// Crear luces para dar realismo
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040); // Luz ambiental
+const ambientLight = new THREE.AmbientLight(0x404040); // Luz suave ambiental
 scene.add(ambientLight);
 
 // Crear burbujas
-const numBubbles = 100;
+const numBubbles = 100; // Número de burbujas
 const bubbles = [];
 const bubbleSize = 1;
 
@@ -61,10 +47,10 @@ for (let i = 0; i < numBubbles; i++) {
     const material = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         roughness: 0.1,
-        transmission: 1,
-        thickness: 0.5,
+        transmission: 1,  // Hacer el material transparente
+        thickness: 0.5,   // Controla el grosor de la burbuja para efectos de refracción
         reflectivity: 1,
-        clearcoat: 1,
+        clearcoat: 1,     // Efecto de brillo externo
         clearcoatRoughness: 0,
         transparent: true,
         opacity: 0.6
@@ -72,12 +58,14 @@ for (let i = 0; i < numBubbles; i++) {
 
     const bubble = new THREE.Mesh(geometry, material);
 
+    // Posicionar burbujas aleatoriamente
     bubble.position.set(
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 30
     );
 
+    // Añadir movimiento de rotación y traslación
     bubble.userData = {
         movement: new THREE.Vector3(
             (Math.random() - 0.5) * 0.02,
@@ -100,13 +88,14 @@ camera.position.z = 20;
 function animate() {
     requestAnimationFrame(animate);
 
-    // Actualizar movimiento y rotación de las burbujas
+    // Actualizar el movimiento y rotación de las burbujas
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.userData.movement);
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
         bubble.rotation.y += bubble.userData.rotationSpeed.y;
         bubble.rotation.z += bubble.userData.rotationSpeed.z;
 
+        // Rebotar burbujas en los límites
         if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
@@ -121,7 +110,4 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-
-    // Ajustar el tamaño del plano del video al cambiar la ventana
-    resizeVideo();
 });
