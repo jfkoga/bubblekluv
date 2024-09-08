@@ -2,6 +2,20 @@ body {
     margin: 0;
     overflow: hidden;
     background: black;
+    /* Ensure full viewport size */
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+#background-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Cover the entire viewport */
+    z-index: 0; /* Place behind everything else */
 }
 
 #bubbles-container {
@@ -10,5 +24,5 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0;
+    z-index: 1; /* Place above the video */
 }

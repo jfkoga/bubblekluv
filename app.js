@@ -7,18 +7,6 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Crear el skybox
-const loader = new THREE.CubeTextureLoader();
-const textureCube = loader.load([
-    'textures/skybox/px.jpg', // Right
-    'textures/skybox/nx.jpg', // Left
-    'textures/skybox/py.jpg', // Top
-    'textures/skybox/ny.jpg', // Bottom
-    'textures/skybox/pz.jpg', // Front
-    'textures/skybox/nz.jpg'  // Back
-]);
-scene.background = textureCube;
-
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
 const bubbles = [];
