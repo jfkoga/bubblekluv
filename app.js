@@ -20,15 +20,14 @@ videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 videoTexture.format = THREE.RGBFormat;
 
+// Material para el video, sin iluminación
 const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-
-// Skybox o fondo de video
 const skyboxGeometry = new THREE.PlaneGeometry(200, 200);
 const skybox = new THREE.Mesh(skyboxGeometry, videoMaterial);
 skybox.position.set(0, 0, -50);
 scene.add(skybox);
 
-// Crear luces para dar realismo
+// Crear luces, solo para las burbujas
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
@@ -44,6 +43,7 @@ const bubbleSize = 1;
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
     
+    // Material físico avanzado para las burbujas
     const material = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         roughness: 0.1,
