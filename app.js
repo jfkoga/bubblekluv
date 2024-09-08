@@ -24,12 +24,23 @@ videoTexture.format = THREE.RGBFormat;
 const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
 const planeGeometry = new THREE.PlaneGeometry(16, 9); // Mantener las proporciones 16:9 del video
 const plane = new THREE.Mesh(planeGeometry, videoMaterial);
-
-// Ajustar el tamaño del plano del video a la pantalla
-const scale = Math.max(window.innerWidth / 16, window.innerHeight / 9);
-plane.scale.set(scale, scale, 1);
-plane.position.set(0, 0, -50); // Alejar el plano del video
 scene.add(plane);
+
+// Ajustar el tamaño del plano del video para cubrir toda la pantalla sin distorsión
+function resizeVideo() {
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    const videoAspect = 16 / 9;
+    
+    if (aspectRatio > videoAspect) {
+        // Pantalla es más ancha que el video
+        plane.scale.set(aspectRatio / videoAspect * 16, 9, 1);
+    } else {
+        // Pantalla es más alta que el video
+        plane.scale.set(16, videoAspect / aspectRatio * 9, 1);
+    }
+    plane.position.set(0, 0, -50); // Alejar el plano del video
+}
+resizeVideo();
 
 // Crear luces, solo para las burbujas
 const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -112,6 +123,5 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
 
     // Ajustar el tamaño del plano del video al cambiar la ventana
-    const scale = Math.max(window.innerWidth / 16, window.innerHeight / 9);
-    plane.scale.set(scale, scale, 1);
+    resizeVideo();
 });
