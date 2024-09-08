@@ -7,13 +7,34 @@ const renderer = new THREE.WebGLRenderer({ alpha: true }); // Activa transparenc
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
+// Crear el skybox
+const loader = new THREE.CubeTextureLoader();
+const textureCube = loader.load([
+    'textures/px.jpg', // Right
+    'textures/nx.jpg', // Left
+    'textures/py.jpg', // Top
+    'textures/ny.jpg', // Bottom
+    'textures/pz.jpg', // Front
+    'textures/nz.jpg'  // Back
+]);
+scene.background = textureCube;
+
+// Crear una textura para las burbujas
+const textureLoader = new THREE.TextureLoader();
+const bubbleTexture = textureLoader.load('textures/bubble_texture.png'); // Cambia 'bubble_texture.png' por el nombre de tu textura
+
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
 const bubbles = [];
 
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(Math.random() * 0.5, 32, 32);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.6 });
+    const material = new THREE.MeshBasicMaterial({
+        map: bubbleTexture,
+        transparent: true,
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending, // Opcional: Para dar un efecto más brillante
+    });
     const bubble = new THREE.Mesh(geometry, material);
 
     // Posicionar burbujas aleatoriamente
