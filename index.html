@@ -8,12 +8,18 @@
     <link rel="stylesheet" href="styles.css"> <!-- Enlace al archivo CSS -->
 </head>
 <body>
-    <div id="bubbles-container"></div> <!-- Contenedor para las burbujas -->
-    <script type="module" src="app.js"></script> <!-- Enlace al archivo JavaScript -->
+    <!-- Video de fondo -->
     <video id="video-background" autoplay loop muted>
         <source src="videos/background.mp4" type="video/mp4">
         Tu navegador no soporta el formato de video.
     </video>
+
+    <!-- Logo centrado -->
     <img id="logo" src="images/logo.png" alt="Logo">
+
+    <!-- Contenedor para las burbujas (Three.js) -->
+    <div id="bubbles-container"></div>
+
+    <script type="module" src="app.js"></script> <!-- Enlace al archivo JavaScript -->
 </body>
 </html>
