@@ -20,8 +20,8 @@ const textureCube = loader.load([
 scene.background = textureCube;
 
 // Crear una textura para las burbujas
-//const textureLoader = new THREE.TextureLoader();
-//const bubbleTexture = textureLoader.load('textures/bubble_texture.jpg');
+const textureLoader = new THREE.TextureLoader();
+const bubbleTexture = textureLoader.load('textures/bubble_texture.jpg');
 
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
