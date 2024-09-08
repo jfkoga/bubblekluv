@@ -1,4 +1,4 @@
-import * as THREE from './node_modules/three/build/three.module.js';
+import * as THREE from './libs/three.module.js';
 
 // Configuración básica de la escena
 const scene = new THREE.Scene();
