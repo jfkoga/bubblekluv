@@ -7,7 +7,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Crear el skybox
+// skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
     'textures/px.jpg', // Right
