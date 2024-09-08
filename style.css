@@ -2,43 +2,10 @@
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial, sans-serif;
-    background-color: #000; /* Color de fondo en caso de no tener video/imagen */
+    background: #000; /* Fondo negro para el área del canvas */
 }
 
-.background-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: -1; /* Asegura que el fondo esté detrás del contenido */
+canvas {
+    display: block;
 }
 
-#background-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-#background-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none; /* Ocultar imagen si se usa video */
-}
-
-#three-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}

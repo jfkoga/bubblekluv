@@ -8,10 +8,9 @@ camera.position.z = 5;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById('three-container').appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
 const effect = new StereoEffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
 
 // Crear geometría y material para la esfera
 const geometry = new THREE.SphereGeometry(1, 32, 32);
@@ -42,3 +41,4 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
+
