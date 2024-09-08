@@ -9,46 +9,31 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Cargar un mapa de entorno (skybox o cualquier imagen de entorno)
-const loader = new THREE.CubeTextureLoader();
-const envMap = loader.load([
-    'textures/px.jpg',  // Imagen para el lado positivo del eje X
-    'textures/nx.jpg',  // Imagen para el lado negativo del eje X
-    'textures/py.jpg',  // Imagen para el lado positivo del eje Y
-    'textures/ny.jpg',  // Imagen para el lado negativo del eje Y
-    'textures/pz.jpg',  // Imagen para el lado positivo del eje Z
-    'textures/nz.jpg'   // Imagen para el lado negativo del eje Z
-]);
-scene.background = envMap; // Usar el mapa de entorno como fondo
+// Crear el video como textura
+const video = document.getElementById('video-background');
+const videoTexture = new THREE.VideoTexture(video);
 
-// Crear burbujas (esferas) con material físico para reflejos y transparencia
-const spheres = [];
+// Crear material con la textura del video
 const geometry = new THREE.SphereGeometry(0.5, 32, 32);
 const material = new THREE.MeshPhysicalMaterial({
     color: 0x44aa88,
-    metalness: 0.6,           // Similar al reflejo de un metal
-    roughness: 0.1,           // Superficie lisa (más realista para burbujas)
-    transparent: true,        // Para hacer las burbujas parcialmente transparentes
-    opacity: 0.6,             // Nivel de transparencia
-    transmission: 1.0,        // Hace que sea como un vidrio
-    reflectivity: 0.9,        // Refleja el entorno
-    envMap: envMap,           // Refleja el mapa de entorno
-    envMapIntensity: 1.5,     // Intensidad del reflejo del entorno
-    clearcoat: 1.0,           // Capa brillante superior para más realismo
-    clearcoatRoughness: 0.05, // Suavidad de la capa brillante
+    metalness: 0.6,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.6,
+    transmission: 1.0,
+    reflectivity: 0.9,
+    envMap: videoTexture,
+    envMapIntensity: 1.5,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.05,
 });
 
 // Crear varias burbujas y agregarlas a la escena
+const spheres = [];
 for (let i = 0; i < 100; i++) {
     const sphere = new THREE.Mesh(geometry, material);
-
-    // Posición inicial aleatoria
-    sphere.position.set(
-        (Math.random() - 0.5) * 10, 
-        (Math.random() - 0.5) * 10, 
-        (Math.random() - 0.5) * 10
-    );
-
+    sphere.position.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
     scene.add(sphere);
     spheres.push(sphere);
 }
@@ -58,23 +43,16 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
 directionalLight.position.set(5, 5, 5).normalize();
 scene.add(directionalLight);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiental suave
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 // Animación para mover las burbujas
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotar y mover las burbujas ligeramente
     spheres.forEach(sphere => {
         sphere.position.y += 0.01;
-        sphere.position.x += (Math.random() - 0.5) * 0.01;
-        sphere.position.z += (Math.random() - 0.5) * 0.01;
-
-        // Si una burbuja sube demasiado, vuelve a su posición original
-        if (sphere.position.y > 5) {
-            sphere.position.y = -5;
-        }
+        if (sphere.position.y > 5) sphere.position.y = -5;
     });
 
     renderer.render(scene, camera);
@@ -88,3 +66,4 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
+
