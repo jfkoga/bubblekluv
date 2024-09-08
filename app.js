@@ -13,13 +13,43 @@ video.src = 'textures/background.mp4';
 video.autoplay = true;
 video.loop = true;
 video.muted = true;
+video.crossOrigin = 'anonymous';
 video.play();
-video.crossOrigin = 'anonymous'; // Para evitar problemas de CORS
 
 const videoTexture = new THREE.VideoTexture(video);
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 videoTexture.format = THREE.RGBFormat;
+
+// Crear material para las burbujas con un shader
+const bubbleShader = {
+    uniforms: {
+        texture: { value: videoTexture },
+        time: { value: 0.0 },
+        opacity: { value: 0.5 }
+    },
+    vertexShader: `
+        varying vec3 vPosition;
+        void main() {
+            vPosition = position;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D texture;
+        uniform float time;
+        uniform float opacity;
+        varying vec3 vPosition;
+        
+        void main() {
+            vec3 color = vec3(1.0, 1.0, 1.0);
+            float distance = length(vPosition);
+            float alpha = 1.0 - smoothstep(0.4, 0.5, distance);
+            gl_FragColor = vec4(color, alpha * opacity);
+        }
+    `
+};
 
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
@@ -28,14 +58,13 @@ const bubbleSize = 1;
 
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    const material = new THREE.MeshStandardMaterial({
-        color: 0x87CEEB, // Color azul claro
+    const material = new THREE.ShaderMaterial({
+        uniforms: bubbleShader.uniforms,
+        vertexShader: bubbleShader.vertexShader,
+        fragmentShader: bubbleShader.fragmentShader,
         transparent: true,
-        opacity: 0.6,
-        emissive: 0x00ffff, // Color de emisión azul para un brillo sutil
-        emissiveIntensity: 0.5,
         blending: THREE.AdditiveBlending,
-        depthWrite: false // No escribir en el buffer de profundidad
+        depthWrite: false
     });
     const bubble = new THREE.Mesh(geometry, material);
 
@@ -72,6 +101,9 @@ function animate() {
         if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
+
+        // Actualizar el tiempo del shader
+        bubble.material.uniforms.time.value += 0.01;
     });
 
     renderer.render(scene, camera);
