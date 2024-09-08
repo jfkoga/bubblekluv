@@ -1,5 +1,4 @@
-// Importar Three.js desde un CDN
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
+import * as THREE from './libs/three.module.js';
 
 // Configuración básica de la escena, cámara y renderizador
 const scene = new THREE.Scene();
@@ -10,10 +9,34 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Crear burbujas (esferas)
+// Cargar un mapa de entorno (skybox o cualquier imagen de entorno)
+const loader = new THREE.CubeTextureLoader();
+const envMap = loader.load([
+    'textures/px.jpg',  // Imagen para el lado positivo del eje X
+    'textures/nx.jpg',  // Imagen para el lado negativo del eje X
+    'textures/py.jpg',  // Imagen para el lado positivo del eje Y
+    'textures/ny.jpg',  // Imagen para el lado negativo del eje Y
+    'textures/pz.jpg',  // Imagen para el lado positivo del eje Z
+    'textures/nz.jpg'   // Imagen para el lado negativo del eje Z
+]);
+scene.background = envMap; // Usar el mapa de entorno como fondo
+
+// Crear burbujas (esferas) con material físico para reflejos y transparencia
 const spheres = [];
 const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
+const material = new THREE.MeshPhysicalMaterial({
+    color: 0x44aa88,
+    metalness: 0.6,           // Similar al reflejo de un metal
+    roughness: 0.1,           // Superficie lisa (más realista para burbujas)
+    transparent: true,        // Para hacer las burbujas parcialmente transparentes
+    opacity: 0.6,             // Nivel de transparencia
+    transmission: 1.0,        // Hace que sea como un vidrio
+    reflectivity: 0.9,        // Refleja el entorno
+    envMap: envMap,           // Refleja el mapa de entorno
+    envMapIntensity: 1.5,     // Intensidad del reflejo del entorno
+    clearcoat: 1.0,           // Capa brillante superior para más realismo
+    clearcoatRoughness: 0.05, // Suavidad de la capa brillante
+});
 
 // Crear varias burbujas y agregarlas a la escena
 for (let i = 0; i < 100; i++) {
@@ -30,10 +53,13 @@ for (let i = 0; i < 100; i++) {
     spheres.push(sphere);
 }
 
-// Añadir luz
-const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(5, 5, 5).normalize();
-scene.add(light);
+// Añadir luz direccional y luz ambiental
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 5, 5).normalize();
+scene.add(directionalLight);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // Luz ambiental suave
+scene.add(ambientLight);
 
 // Animación para mover las burbujas
 function animate() {
@@ -62,4 +88,3 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
-
