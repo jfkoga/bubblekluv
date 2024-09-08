@@ -1,80 +1,60 @@
-// Importar Three.js y los módulos necesarios desde un CDN confiable
-import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-import { ParallaxBarrierEffect } from 'https://unpkg.com/three@0.150.0/examples/jsm/effects/ParallaxBarrierEffect.js';
+
+// Importar Three.js y los módulos necesarios desde el CDN
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
+import { StereoEffect } from 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/effects/StereoEffect.js';
 
 // Configuración de la escena
 const scene = new THREE.Scene();
 
-// Configuración de la cámara
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+// Crear una cámara
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 10;
 
-// Configuración del renderizador
+// Crear un renderizador
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Crear burbujas (esferas)
-const bubbles = [];
-const bubbleGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const bubbleMaterial = new THREE.MeshPhongMaterial({ color: 0x88ccff, transparent: true, opacity: 0.6 });
+// Configurar el efecto stereo
+const effect = new StereoEffect(renderer);
+effect.setSize(window.innerWidth, window.innerHeight);
 
-for (let i = 0; i < 50; i++) {
-    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
-    bubble.position.set(
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10
+// Crear algunos objetos en la escena (esferas flotantes)
+const geometry = new THREE.SphereGeometry(1, 32, 32);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+
+for (let i = 0; i < 100; i++) {
+    const sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20
     );
-    bubble.velocity = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.01,
-        (Math.random() - 0.5) * 0.01,
-        (Math.random() - 0.5) * 0.01
-    );
-    scene.add(bubble);
-    bubbles.push(bubble);
+    scene.add(sphere);
 }
 
-// Añadir luz a la escena
+// Luz ambiental
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-scene.add(directionalLight);
-
-// Configurar el efecto Parallax Barrier
-const effect = new ParallaxBarrierEffect(renderer);
-effect.setSize(window.innerWidth, window.innerHeight);
-
-// Función de animación
+// Animar la escena
 function animate() {
     requestAnimationFrame(animate);
 
-    // Actualizar la posición de las burbujas
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.velocity);
+    // Rotar la cámara lentamente para un efecto visual
+    camera.rotation.y += 0.002;
 
-        // Reposicionar la burbuja si se sale de los límites
-        if (bubble.position.length() > 5) {
-            bubble.position.set(
-                (Math.random() - 0.5) * 10,
-                (Math.random() - 0.5) * 10,
-                (Math.random() - 0.5) * 10
-            );
-        }
-    });
-
-    // Renderizar la escena con el efecto Parallax Barrier
+    // Renderizar la escena con el efecto stereo
     effect.render(scene, camera);
 }
 
 animate();
 
-// Ajustar el tamaño del renderizador si se cambia el tamaño de la ventana
+// Ajustar el tamaño si la ventana cambia de tamaño
 window.addEventListener('resize', () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    
+
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 
