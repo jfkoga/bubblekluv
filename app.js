@@ -10,12 +10,12 @@ document.getElementById('bubbles-container').appendChild(renderer.domElement);
 // Crear el skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/skybox/px.jpg', // Right
-    'textures/skybox/nx.jpg', // Left
-    'textures/skybox/py.jpg', // Top
-    'textures/skybox/ny.jpg', // Bottom
-    'textures/skybox/pz.jpg', // Front
-    'textures/skybox/nz.jpg'  // Back
+    'textures/px.jpg', // Right
+    'textures/nx.jpg', // Left
+    'textures/py.jpg', // Top
+    'textures/ny.jpg', // Bottom
+    'textures/pz.jpg', // Front
+    'textures/nz.jpg'  // Back
 ]);
 scene.background = textureCube;
 
