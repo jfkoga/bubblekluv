@@ -5,31 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Efecto de burbujas con Three.js y video de fondo">
     <title>Burbujas con Video de Fondo</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            height: 100%;
-            background: rgb(35, 207, 58); /* Fondo negro en caso de que el video no cargue */
-        }
-        #video-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1; /* Coloca el video detrás del contenido */
-        }
-        #logo {
-            position: absolute;
-            top: 20px; /* Ajusta la posición según tus necesidades */
-            left: 20px; /* Ajusta la posición según tus necesidades */
-            width: 150px; /* Ajusta el tamaño del logo */
-            z-index: 1; /* Asegura que el logo esté por encima del video */
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css"> <!-- Enlace al archivo CSS -->
 </head>
 <body>
     <video id="video-background" autoplay loop muted>
@@ -37,6 +13,7 @@
         Tu navegador no soporta el formato de video.
     </video>
     <img id="logo" src="images/logo.png" alt="Logo">
-    <script type="module" src="app.js"></script>
+    <div id="bubbles-container"></div> <!-- Contenedor para las burbujas -->
+    <script type="module" src="app.js"></script> <!-- Enlace al archivo JavaScript -->
 </body>
 </html>
