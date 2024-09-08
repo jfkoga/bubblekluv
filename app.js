@@ -19,10 +19,6 @@ const textureCube = loader.load([
 ]);
 scene.background = textureCube;
 
-// Crear una textura para las burbujas
-const textureLoader = new THREE.TextureLoader();
-const bubbleTexture = textureLoader.load('textures/bubble_texture.png');
-
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
 const bubbles = [];
@@ -30,13 +26,11 @@ const bubbleSize = 1;
 
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    const material = new THREE.MeshStandardMaterial({
-        map: bubbleTexture,
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x00ffff, // Color de la burbuja
         transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-        emissive: new THREE.Color(0x00ffff),
-        emissiveIntensity: 0.2
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending
     });
     const bubble = new THREE.Mesh(geometry, material);
 
@@ -53,7 +47,7 @@ for (let i = 0; i < numBubbles; i++) {
             Math.random() - 0.5,
             Math.random() - 0.5,
             Math.random() - 0.5
-        ).normalize().multiplyScalar(0.01)
+        ).normalize().multiplyScalar(0.02)
     };
 
     bubbles.push(bubble);
