@@ -10,9 +10,5 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0; /* Asegúrate de que el contenedor esté detrás del logo si se añade */
-}
-
-img {
-    display: block;
+    z-index: 0;
 }
