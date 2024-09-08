@@ -1,7 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js';
-import { StereoEffect } from 'https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/effects/StereoEffect.js';
 
-// Configuración básica de la escena
+// Configuración de la escena, cámara y renderizador
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 5;
@@ -10,34 +9,55 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-const effect = new StereoEffect(renderer);
+// Crear burbujas (esferas)
+const spheres = [];
+const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+const material = new THREE.MeshPhongMaterial({ color: 0x44aa88 });
 
-// Crear geometría y material para la esfera
-const geometry = new THREE.SphereGeometry(1, 32, 32);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
-const sphere = new THREE.Mesh(geometry, material);
-scene.add(sphere);
+// Crear varias burbujas y agregarlas a la escena
+for (let i = 0; i < 100; i++) {
+    const sphere = new THREE.Mesh(geometry, material);
 
-// Añadir una luz
-const ambientLight = new THREE.AmbientLight(0x404040);
-scene.add(ambientLight);
+    // Posición inicial aleatoria
+    sphere.position.set(
+        (Math.random() - 0.5) * 10, 
+        (Math.random() - 0.5) * 10, 
+        (Math.random() - 0.5) * 10
+    );
 
+    scene.add(sphere);
+    spheres.push(sphere);
+}
+
+// Añadir luz
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(5, 5, 5).normalize();
+scene.add(light);
+
+// Animación para mover las burbujas
 function animate() {
     requestAnimationFrame(animate);
 
-    // Animar la esfera
-    sphere.rotation.x += 0.01;
-    sphere.rotation.y += 0.01;
+    // Rotar y mover las burbujas ligeramente
+    spheres.forEach(sphere => {
+        sphere.position.y += 0.01;
+        sphere.position.x += (Math.random() - 0.5) * 0.01;
+        sphere.position.z += (Math.random() - 0.5) * 0.01;
 
-    effect.render(scene, camera);
+        // Si una burbuja sube demasiado, vuelve a su posición original
+        if (sphere.position.y > 5) {
+            sphere.position.y = -5;
+        }
+    });
+
+    renderer.render(scene, camera);
 }
 
 animate();
 
-// Ajustar el tamaño del renderizador al cambiar el tamaño de la ventana
+// Ajustar el tamaño del canvas cuando se cambia el tamaño de la ventana
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
-    effect.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });

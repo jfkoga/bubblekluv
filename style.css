@@ -1,11 +1,5 @@
-/* Estilos generales */
 body {
     margin: 0;
-    overflow: hidden;
-    background: #000; /* Fondo negro para el área del canvas */
-}
-
-canvas {
-    display: block;
+    background-color: #000;
 }
 
