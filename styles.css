@@ -1,27 +1,18 @@
-/* Asegura que todo ocupe el 100% de la pantalla */
-html, body {
+body {
     margin: 0;
-    padding: 0;
-    height: 100%;
     overflow: hidden;
+    background: black;
 }
 
-/* Estilo del logo centrado */
-#logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-width: 20%; /* Ajusta el tamaño del logo */
-    z-index: 1; /* Coloca el logo sobre las burbujas */
-}
-
-/* Contenedor de burbujas */
 #bubbles-container {
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0; /* Asegura que las burbujas estén detrás del logo */
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* Asegúrate de que el contenedor esté detrás del logo si se añade */
+}
+
+img {
+    display: block;
 }

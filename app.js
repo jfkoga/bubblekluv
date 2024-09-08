@@ -1,27 +1,27 @@
-import * as THREE from './libs/three.module.js';  // Asegúrate de que la ruta sea correcta
+import * as THREE from './libs/three.module.js';
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ alpha: true }); // Activa transparencia
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
 // Crear el skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/px.jpg', // Right
-    'textures/nx.jpg', // Left
-    'textures/py.jpg', // Top
-    'textures/ny.jpg', // Bottom
-    'textures/pz.jpg', // Front
-    'textures/nz.jpg'  // Back
+    'textures/skybox/px.jpg', // Right
+    'textures/skybox/nx.jpg', // Left
+    'textures/skybox/py.jpg', // Top
+    'textures/skybox/ny.jpg', // Bottom
+    'textures/skybox/pz.jpg', // Front
+    'textures/skybox/nz.jpg'  // Back
 ]);
 scene.background = textureCube;
 
 // Crear una textura para las burbujas
 const textureLoader = new THREE.TextureLoader();
-const bubbleTexture = textureLoader.load('textures/bubble_texture.png'); // Cambia 'bubble_texture.png' por el nombre de tu textura
+const bubbleTexture = textureLoader.load('textures/bubble_texture.png');
 
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
@@ -64,3 +64,10 @@ function animate() {
 }
 
 animate();
+
+// Ajustar tamaño del renderer cuando se cambia el tamaño de la ventana
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
