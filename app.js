@@ -7,6 +7,20 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
+// Crear el video de fondo
+const video = document.createElement('video');
+video.src = 'textures/background.mp4';
+video.autoplay = true;
+video.loop = true;
+video.muted = true;
+video.play();
+video.crossOrigin = 'anonymous'; // Para evitar problemas de CORS
+
+const videoTexture = new THREE.VideoTexture(video);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+videoTexture.format = THREE.RGBFormat;
+
 // Crear burbujas
 const numBubbles = 100; // Número de burbujas
 const bubbles = [];
@@ -14,11 +28,14 @@ const bubbleSize = 1;
 
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0x00ffff, // Color de la burbuja
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x87CEEB, // Color azul claro
         transparent: true,
-        opacity: 0.7,
-        blending: THREE.AdditiveBlending
+        opacity: 0.6,
+        emissive: 0x00ffff, // Color de emisión azul para un brillo sutil
+        emissiveIntensity: 0.5,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false // No escribir en el buffer de profundidad
     });
     const bubble = new THREE.Mesh(geometry, material);
 
