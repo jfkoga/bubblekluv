@@ -9,7 +9,7 @@ document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
 // Cargar el video
 const video = document.createElement('video');
-video.src = 'videos/background.mp4';
+video.src = 'videos/background.mp4';a
 video.crossOrigin = 'anonymous'; // Asegúrate de que el video pueda ser accedido
 video.loop = true;
 video.muted = true;
