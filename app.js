@@ -1,4 +1,5 @@
 import * as THREE from './libs/three.module.js';
+import { OrbitControls } from './libs/OrbitControls.js'; // Asegúrate de importar OrbitControls
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -10,12 +11,12 @@ document.getElementById('bubbles-container').appendChild(renderer.domElement);
 // Crear el cubemap para el skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/skybox/px.png', // derecha
-    'textures/skybox/nx.png', // izquierda
-    'textures/skybox/py.png', // arriba
-    'textures/skybox/ny.png', // abajo
-    'textures/skybox/pz.png', // frente
-    'textures/skybox/nz.png'  // atrás
+    'textures/px.jpg', // derecha
+    'textures/nx.jpg', // izquierda
+    'textures/py.jpg', // arriba
+    'textures/ny.jpg', // abajo
+    'textures/pz.jpg', // frente
+    'textures/nz.jpg'  // atrás
 ]);
 
 // Establecer el fondo de la escena con el cubemap
@@ -76,7 +77,15 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
+// Posicionar la cámara
 camera.position.z = 20;
+
+// Agregar controles de cámara usando el ratón
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Activar la amortiguación (inercia)
+controls.dampingFactor = 0.05; // Controlar el nivel de inercia
+controls.enableZoom = true;    // Habilitar el zoom con la rueda del ratón
+controls.autoRotate = false;   // Deshabilitar la rotación automática
 
 function animate() {
     requestAnimationFrame(animate);
@@ -93,6 +102,9 @@ function animate() {
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
+
+    // Actualizar los controles
+    controls.update();
 
     renderer.render(scene, camera);
 }
