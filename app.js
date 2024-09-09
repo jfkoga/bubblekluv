@@ -7,26 +7,19 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Crear el video de fondo
-const video = document.createElement('video');
-video.src = 'textures/background.mp4';
-video.autoplay = true;
-video.loop = true;
-video.muted = true;
-video.play();
+// Crear el cubemap para el skybox
+const loader = new THREE.CubeTextureLoader();
+const textureCube = loader.load([
+    'textures/px.jpg', // derecha
+    'textures/nx.jpg', // izquierda
+    'textures/py.jpg', // arriba
+    'textures/ny.jpg', // abajo
+    'textures/pz.jpg', // frente
+    'textures/nz.jpg'  // atrás
+]);
 
-const videoTexture = new THREE.VideoTexture(video);
-videoTexture.minFilter = THREE.LinearFilter;
-videoTexture.magFilter = THREE.LinearFilter;
-videoTexture.format = THREE.RGBFormat;
-
-const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-
-// Skybox o fondo de video
-const skyboxGeometry = new THREE.PlaneGeometry(200, 200);
-const skybox = new THREE.Mesh(skyboxGeometry, videoMaterial);
-skybox.position.set(0, 0, -50);
-scene.add(skybox);
+// Establecer el fondo de la escena con el cubemap
+scene.background = textureCube;
 
 // Crear luces para dar realismo
 const light = new THREE.DirectionalLight(0xffffff, 1);
