@@ -1,4 +1,5 @@
-import * as THREE from './libs/three.module.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.153.0/examples/jsm/controls/OrbitControls.js'; 
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -79,6 +80,13 @@ for (let i = 0; i < numBubbles; i++) {
 // Posicionar la cámara
 camera.position.z = 20;
 
+// Agregar controles de cámara usando el ratón con OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Activar la amortiguación (inercia)
+controls.dampingFactor = 0.05; // Controlar el nivel de inercia
+controls.enableZoom = true;    // Habilitar el zoom con la rueda del ratón
+controls.autoRotate = false;   // Deshabilitar la rotación automática
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -95,8 +103,12 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
+    // Actualizar los controles
+    controls.update();
+
     renderer.render(scene, camera);
 }
+
 animate();
 
 window.addEventListener('resize', () => {
