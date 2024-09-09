@@ -10,12 +10,12 @@ document.getElementById('bubbles-container').appendChild(renderer.domElement);
 // Crear el cubemap para el skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/px.jpg', // derecha
-    'textures/nx.jpg', // izquierda
-    'textures/py.jpg', // arriba
-    'textures/ny.jpg', // abajo
-    'textures/pz.jpg', // frente
-    'textures/nz.jpg'  // atrás
+    'textures/skybox/px.png', // derecha
+    'textures/skybox/nx.png', // izquierda
+    'textures/skybox/py.png', // arriba
+    'textures/skybox/ny.png', // abajo
+    'textures/skybox/pz.png', // frente
+    'textures/skybox/nz.png'  // atrás
 ]);
 
 // Establecer el fondo de la escena con el cubemap
