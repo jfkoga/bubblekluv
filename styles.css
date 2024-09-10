@@ -8,16 +8,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-}
 
-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
 }
 
 canvas {
@@ -40,6 +31,18 @@ canvas {
     z-index: 1; /* Debe estar detrás de las burbujas, pero delante del video */
     pointer-events: none; /* Permite que los clics pasen a través de esta capa */
 }
+
+#logo-overlay {
+    position: absolute;
+    top: 50%;  /* Posiciona el centro verticalmente */
+    left: 50%; /* Posiciona el centro horizontalmente */
+    transform: translate(-50%, -50%); /* Ajusta el logotipo para que esté perfectamente centrado */
+    z-index: 1000; /* Asegura que esté por encima del canvas de WebGL */
+    pointer-events: none; /* Permite que los eventos del ratón pasen al canvas debajo */
+    width: auto; /* Mantén el tamaño original del logo */
+    height: auto;
+}
+
 
 
 
