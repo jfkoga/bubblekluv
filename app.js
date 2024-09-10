@@ -104,9 +104,9 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
-    // Ajustar la rotación de la cámara en función del movimiento del ratón
-    camera.rotation.x = mouse.y * mouseSpeed;
-    camera.rotation.y = mouse.x * mouseSpeed;
+    // Ajustar la posición de la cámara en función del movimiento del ratón
+    camera.position.x += (mouse.x * mouseSpeed - camera.position.x) * 0.1;
+    camera.position.y += (mouse.y * mouseSpeed - camera.position.y) * 0.1;
 
     renderer.render(scene, camera);
 }
