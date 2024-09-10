@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import { PointerLockControls } from './libs/PointerLockControls.js'; // Asegúrate de que apunte al archivo correcto
+import { FirstPersonControls } from './libs/FirstPersonControls.js'; // Asegúrate de que apunte al archivo correcto
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -81,24 +81,22 @@ for (let i = 0; i < numBubbles; i++) {
 camera.position.set(0, 0, 20);
 
 // Configurar los controles
-const controls = new PointerLockControls(camera, renderer.domElement);
-
-// Ajustar parámetros de los controles
-controls.movementSpeed = 10;  // Ajusta la velocidad de movimiento
-controls.lookSpeed = 0.1;     // Ajusta la sensibilidad del movimiento del ratón
-
-// Activar el bloqueo del ratón al hacer clic
-document.addEventListener('click', () => {
-    controls.lock();
-});
+const controls = new FirstPersonControls(camera, renderer.domElement);
+controls.movementSpeed = 5; // Ajusta la velocidad de movimiento
+controls.lookSpeed = 0.1;    // Ajusta la sensibilidad del movimiento del ratón
 
 // Configurar el evento de desbloqueo del ratón
 document.addEventListener('pointerlockchange', () => {
     if (document.pointerLockElement === renderer.domElement) {
-        // Se ha bloqueado el ratón
+        controls.enabled = true;
     } else {
-        // Se ha desbloqueado el ratón
+        controls.enabled = false;
     }
+});
+
+// Activar el bloqueo del ratón al hacer clic
+document.addEventListener('click', () => {
+    renderer.domElement.requestPointerLock();
 });
 
 // Bucle de animación
