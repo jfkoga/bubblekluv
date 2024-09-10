@@ -1,4 +1,5 @@
 import * as THREE from './libs/three.module.js';
+import { PointerLockControls } from './libs/PointerLockControls.js'; // Asegúrate de tener el archivo adecuado
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -79,25 +80,15 @@ for (let i = 0; i < numBubbles; i++) {
 // Posicionar la cámara
 camera.position.z = 20;
 
-// Variables para el control del movimiento del ratón
-const mouse = new THREE.Vector2();
-const prevMouse = new THREE.Vector2();
-const mouseSpeed = 0.005; // Ajusta la sensibilidad
-let isMouseDown = false; // Para controlar el estado del botón del ratón
-
-window.addEventListener('mousedown', () => {
-    isMouseDown = true;
+// Configurar los controles
+const controls = new PointerLockControls(camera, renderer.domElement);
+document.addEventListener('click', () => {
+    controls.lock();
 });
 
-window.addEventListener('mouseup', () => {
-    isMouseDown = false;
-    prevMouse.copy(mouse); // Actualizar la posición anterior cuando se suelta el ratón
-});
-
-window.addEventListener('mousemove', (event) => {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-});
+// Configurar el movimiento de la cámara
+controls.movementSpeed = 10;
+controls.lookSpeed = 0.1;
 
 function animate() {
     requestAnimationFrame(animate);
@@ -115,23 +106,7 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
-    // Ajustar la rotación de la cámara solo si el botón del ratón está presionado y el ratón se mueve
-    if (isMouseDown) {
-        // Calcular el movimiento del ratón
-        const deltaX = mouse.x - prevMouse.x;
-        const deltaY = mouse.y - prevMouse.y;
-
-        // Aplicar el movimiento a la rotación de la cámara
-        camera.rotation.x += deltaY * mouseSpeed;
-        camera.rotation.y -= deltaX * mouseSpeed; // Invertir el control en el eje X
-
-        // Limitar la rotación en el eje X para evitar el giro completo de la cámara
-        const maxRotation = Math.PI / 2; // 90 grados
-        camera.rotation.x = Math.max(-maxRotation, Math.min(maxRotation, camera.rotation.x));
-
-        // Actualizar la posición previa del ratón
-        prevMouse.copy(mouse);
-    }
+    controls.update(); // Actualizar los controles de la cámara
 
     renderer.render(scene, camera);
 }
