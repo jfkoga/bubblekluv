@@ -1,66 +1,117 @@
 import * as THREE from './libs/three.module.js';
+import { OrbitControls } from './libs/OrbitControls.js'; // Asegúrate de importar OrbitControls
 
-// Configuración básica de la escena, cámara y renderizador
+
+// Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Crear el video como textura
-const video = document.getElementById('video-background');
-const videoTexture = new THREE.VideoTexture(video);
+// Crear el cubemap para el skybox
+const loader = new THREE.CubeTextureLoader();
+const textureCube = loader.load([
+    'textures/px.png', // derecha
+    'textures/nx.png', // izquierda
+    'textures/py.png', // arriba
+    'textures/ny.png', // abajo
+    'textures/pz.png', // frente
+    'textures/nz.png'  // atrás
+]);
 
-// Crear material con la textura del video
-const geometry = new THREE.SphereGeometry(0.5, 32, 32);
-const material = new THREE.MeshPhysicalMaterial({
-    color: 0x44aa88,
-    metalness: 0.6,
-    roughness: 0.1,
-    transparent: true,
-    opacity: 0.6,
-    transmission: 1.0,
-    reflectivity: 0.9,
-    envMap: videoTexture,
-    envMapIntensity: 1.5,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.05,
-});
+// Establecer el fondo de la escena con el cubemap
+scene.background = textureCube;
 
-// Crear varias burbujas y agregarlas a la escena
-const spheres = [];
-for (let i = 0; i < 100; i++) {
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
-    scene.add(sphere);
-    spheres.push(sphere);
-}
+// Crear luces para dar realismo
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(0, 1, 1).normalize();
+scene.add(light);
 
-// Añadir luz direccional y luz ambiental
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 5, 5).normalize();
-scene.add(directionalLight);
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0x404040); // Luz suave ambiental
 scene.add(ambientLight);
 
-// Animación para mover las burbujas
+// Crear burbujas
+const numBubbles = 100; // Número de burbujas
+const bubbles = [];
+const bubbleSize = 1;
+
+for (let i = 0; i < numBubbles; i++) {
+    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+    
+    const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
+        transmission: 1,  // Hacer el material transparente
+        thickness: 0.5,   // Controla el grosor de la burbuja para efectos de refracción
+        reflectivity: 1,
+        clearcoat: 1,     // Efecto de brillo externo
+        clearcoatRoughness: 0,
+        transparent: true,
+        opacity: 0.6
+    });
+
+    const bubble = new THREE.Mesh(geometry, material);
+
+    // Posicionar burbujas aleatoriamente
+    bubble.position.set(
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30
+    );
+
+    // Añadir movimiento de rotación y traslación
+    bubble.userData = {
+        movement: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02
+        ),
+        rotationSpeed: new THREE.Vector3(
+            Math.random() * 0.01,
+            Math.random() * 0.01,
+            Math.random() * 0.01
+        )
+    };
+
+    bubbles.push(bubble);
+    scene.add(bubble);
+}
+
+// Posicionar la cámara
+camera.position.z = 20;
+
+// Agregar controles de cámara usando el ratón con OrbitControls
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; // Activar la amortiguación (inercia)
+controls.dampingFactor = 0.05; // Controlar el nivel de inercia
+controls.enableZoom = true;    // Habilitar el zoom con la rueda del ratón
+controls.autoRotate = false;   // Deshabilitar la rotación automática
+
 function animate() {
     requestAnimationFrame(animate);
 
-    spheres.forEach(sphere => {
-        sphere.position.y += 0.01;
-        if (sphere.position.y > 5) sphere.position.y = -5;
+    // Actualizar el movimiento y rotación de las burbujas
+    bubbles.forEach(bubble => {
+        bubble.position.add(bubble.userData.movement);
+        bubble.rotation.x += bubble.userData.rotationSpeed.x;
+        bubble.rotation.y += bubble.userData.rotationSpeed.y;
+        bubble.rotation.z += bubble.userData.rotationSpeed.z;
+
+        // Rebotar burbujas en los límites
+        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
+
+    // Actualizar los controles
+    controls.update();
 
     renderer.render(scene, camera);
 }
 
 animate();
 
-// Ajustar el tamaño del canvas cuando se cambia el tamaño de la ventana
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
