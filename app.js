@@ -85,14 +85,26 @@ let prevMouseX = 0;
 let prevMouseY = 0;
 let currentMouseX = 0;
 let currentMouseY = 0;
+let targetRotationX = 0;
+let targetRotationY = 0;
 const mouseSensitivity = 0.002;
 
 window.addEventListener('mousedown', (event) => {
     isMouseDown = true;
     
-    // Al hacer clic, reseteamos las posiciones previas del ratón
+    // Al hacer clic, establecer el objetivo de rotación a la posición actual
     prevMouseX = event.clientX;
     prevMouseY = event.clientY;
+
+    // Si se hace clic en un lugar nuevo sin mover el ratón, la cámara irá hasta esa posición
+    const deltaX = (event.clientX / window.innerWidth) * 2 - 1;
+    const deltaY = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    targetRotationX = camera.rotation.y - deltaX * Math.PI; // La rotación Y controla el giro lateral
+    targetRotationY = camera.rotation.x - deltaY * Math.PI / 2; // La rotación X controla el giro vertical
+
+    // Limitar los ángulos de rotación para evitar que la cámara se gire completamente hacia arriba o abajo
+    targetRotationY = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationY));
 });
 
 window.addEventListener('mouseup', () => {
@@ -110,7 +122,7 @@ window.addEventListener('mousemove', (event) => {
     const deltaX = currentMouseX - prevMouseX;
     const deltaY = currentMouseY - prevMouseY;
 
-    // Ajustar la rotación de la cámara en función del movimiento del ratón
+    // Ajustar la rotación de la cámara en función del movimiento del ratón mientras se mantiene presionado el botón
     const rotationSpeedX = deltaX * mouseSensitivity;
     const rotationSpeedY = deltaY * mouseSensitivity;
 
@@ -127,6 +139,12 @@ window.addEventListener('mousemove', (event) => {
 
 function animate() {
     requestAnimationFrame(animate);
+
+    // Interpolar suavemente hacia la nueva rotación objetivo al hacer clic
+    if (!isMouseDown) {
+        camera.rotation.x += (targetRotationY - camera.rotation.x) * 0.1;
+        camera.rotation.y += (targetRotationX - camera.rotation.y) * 0.1;
+    }
 
     // Actualizar el movimiento y rotación de las burbujas
     bubbles.forEach(bubble => {
