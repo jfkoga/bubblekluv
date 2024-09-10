@@ -81,7 +81,7 @@ camera.position.z = 20;
 
 // Variables para el control del movimiento del ratón
 const mouse = new THREE.Vector2();
-const mouseSpeed = 0.05;
+const mouseSpeed = 1.0; // Aumentar la sensibilidad
 
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -104,9 +104,9 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
-    // Ajustar la posición de la cámara en función del movimiento del ratón
-    camera.position.x += (mouse.x * mouseSpeed - camera.position.x) * 0.1;
-    camera.position.y += (mouse.y * mouseSpeed - camera.position.y) * 0.1;
+    // Ajustar la rotación de la cámara en función del movimiento del ratón
+    camera.rotation.x += (mouse.y * mouseSpeed - camera.rotation.x) * 0.05;
+    camera.rotation.y += (mouse.x * mouseSpeed - camera.rotation.y) * 0.05;
 
     renderer.render(scene, camera);
 }
