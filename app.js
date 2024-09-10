@@ -1,8 +1,11 @@
-//import * as THREE from './libs/three.module.js';
-//import { OrbitControls } from './libs/OrbitControls.js'; // Agregamos OrbitControls
+import * as THREE from './libs/three.module.js';
+import { OrbitControls } from './libs/OrbitControls.js';
 
-import * as THREE from 'https://unpkg.com/three@0.151.3/build/three.module.js';
-import { OrbitControls } from 'https://unpkg.com/three@0.151.3/examples/jsm/controls/OrbitControls.js';
+// Add the OrbitControls setup here
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.enableZoom = true;
 
 
 // Crear la escena, cámara y renderer
