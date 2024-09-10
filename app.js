@@ -95,20 +95,14 @@ window.addEventListener('mousedown', (event) => {
     // Al hacer clic, establecer el objetivo de rotación a la posición actual
     prevMouseX = event.clientX;
     prevMouseY = event.clientY;
-
-    // Si se hace clic en un lugar nuevo sin mover el ratón, la cámara irá hasta esa posición
-    const deltaX = (event.clientX / window.innerWidth) * 2 - 1;
-    const deltaY = -(event.clientY / window.innerHeight) * 2 + 1;
-    
-    targetRotationX = camera.rotation.y - deltaX * Math.PI; // La rotación Y controla el giro lateral
-    targetRotationY = camera.rotation.x - deltaY * Math.PI / 2; // La rotación X controla el giro vertical
-
-    // Limitar los ángulos de rotación para evitar que la cámara se gire completamente hacia arriba o abajo
-    targetRotationY = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, targetRotationY));
 });
 
 window.addEventListener('mouseup', () => {
     isMouseDown = false;
+
+    // Actualizar las rotaciones objetivo a la posición actual de la cámara
+    targetRotationX = camera.rotation.y;
+    targetRotationY = camera.rotation.x;
 });
 
 window.addEventListener('mousemove', (event) => {
