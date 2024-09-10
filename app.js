@@ -81,42 +81,49 @@ camera.position.z = 20;
 
 // Variables para el control del movimiento del ratón
 let isMouseDown = false;
-let prevMouseX = window.innerWidth / 2;
-let prevMouseY = window.innerHeight / 2;
+let prevMouseX = 0;
+let prevMouseY = 0;
+let currentMouseX = 0;
+let currentMouseY = 0;
 const mouseSensitivity = 0.002;
 
 window.addEventListener('mousedown', (event) => {
     isMouseDown = true;
+    
+    // Al hacer clic, reseteamos las posiciones previas del ratón
+    prevMouseX = event.clientX;
+    prevMouseY = event.clientY;
 });
 
-window.addEventListener('mouseup', (event) => {
+window.addEventListener('mouseup', () => {
     isMouseDown = false;
 });
 
 window.addEventListener('mousemove', (event) => {
     if (!isMouseDown) return;
 
-    const deltaX = event.clientX - prevMouseX;
-    const deltaY = event.clientY - prevMouseY;
+    // Obtener la posición actual del ratón
+    currentMouseX = event.clientX;
+    currentMouseY = event.clientY;
 
+    // Calcular las diferencias entre la posición actual y la anterior
+    const deltaX = currentMouseX - prevMouseX;
+    const deltaY = currentMouseY - prevMouseY;
+
+    // Ajustar la rotación de la cámara en función del movimiento del ratón
     const rotationSpeedX = deltaX * mouseSensitivity;
     const rotationSpeedY = deltaY * mouseSensitivity;
 
-    // Aplicar la rotación a la cámara
     camera.rotation.y -= rotationSpeedX;
     camera.rotation.x -= rotationSpeedY;
 
     // Restringir la rotación vertical para evitar que la cámara se dé la vuelta
     camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 
-    // Actualizar la posición previa del ratón
-    prevMouseX = event.clientX;
-    prevMouseY = event.clientY;
+    // Actualizar las posiciones previas del ratón para el siguiente cuadro
+    prevMouseX = currentMouseX;
+    prevMouseY = currentMouseY;
 });
-
-// Inicializar la posición del ratón en el centro de la pantalla
-prevMouseX = window.innerWidth / 2;
-prevMouseY = window.innerHeight / 2;
 
 function animate() {
     requestAnimationFrame(animate);
