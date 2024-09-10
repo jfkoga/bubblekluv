@@ -1,6 +1,10 @@
 import * as THREE from './libs/three.module.js';
 import { OrbitControls } from './libs/OrbitControls.js'; // Agregamos OrbitControls
 
+import * as THREE from 'https://unpkg.com/three@0.151.3/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.151.3/examples/jsm/controls/OrbitControls.js';
+
+
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
