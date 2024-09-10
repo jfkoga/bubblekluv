@@ -81,7 +81,7 @@ camera.position.z = 20;
 
 // Variables para el control del movimiento del ratón
 const mouse = new THREE.Vector2();
-const mouseSpeed = 0.5; // Ajusta la sensibilidad
+const mouseSpeed = 1.0; // Aumentar la sensibilidad
 
 window.addEventListener('mousemove', (event) => {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -105,12 +105,8 @@ function animate() {
     });
 
     // Ajustar la rotación de la cámara en función del movimiento del ratón
-    camera.rotation.x += (mouse.y * mouseSpeed - camera.rotation.x) * 0.1;
-    camera.rotation.y -= (mouse.x * mouseSpeed - camera.rotation.y) * 0.1; // Invertir el control en el eje X
-
-    // Limitar la rotación en el eje X para evitar el giro completo de la cámara
-    const maxRotation = Math.PI / 2; // 90 grados
-    camera.rotation.x = Math.max(-maxRotation, Math.min(maxRotation, camera.rotation.x));
+    camera.rotation.x += (mouse.y * mouseSpeed - camera.rotation.x) * 0.05;
+    camera.rotation.y += (mouse.x * mouseSpeed - camera.rotation.y) * 0.05;
 
     renderer.render(scene, camera);
 }
