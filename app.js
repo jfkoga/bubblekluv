@@ -81,8 +81,8 @@ camera.position.z = 20;
 
 // Variables para el control del movimiento del ratón
 let isMouseDown = false;
-let prevMouseX = 0;
-let prevMouseY = 0;
+let prevMouseX = window.innerWidth / 2;
+let prevMouseY = window.innerHeight / 2;
 const mouseSensitivity = 0.002;
 
 window.addEventListener('mousedown', (event) => {
@@ -109,11 +109,12 @@ window.addEventListener('mousemove', (event) => {
     // Restringir la rotación vertical para evitar que la cámara se dé la vuelta
     camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 
+    // Actualizar la posición previa del ratón
     prevMouseX = event.clientX;
     prevMouseY = event.clientY;
 });
 
-// Inicializar la posición del ratón
+// Inicializar la posición del ratón en el centro de la pantalla
 prevMouseX = window.innerWidth / 2;
 prevMouseY = window.innerHeight / 2;
 
