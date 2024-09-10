@@ -106,7 +106,7 @@ function animate() {
 
     // Ajustar la rotación de la cámara en función del movimiento del ratón
     camera.rotation.x += (mouse.y * mouseSpeed - camera.rotation.x) * 0.05;
-    camera.rotation.y += (mouse.x * mouseSpeed - camera.rotation.y) * 0.05;
+    camera.rotation.y -= (mouse.x * mouseSpeed - camera.rotation.y) * 0.05; // Invertir el control en el eje X
 
     renderer.render(scene, camera);
 }
