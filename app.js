@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import { PointerLockControls } from './libs/PointerLockControls.js'; // Asegúrate de que apunte al archivo correcto
+import { OrbitControls } from './libs/OrbitControls.js'; // Asegúrate de que apunte al archivo correcto
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -81,27 +81,13 @@ for (let i = 0; i < numBubbles; i++) {
 camera.position.set(0, 0, 20);
 
 // Configurar los controles
-const controls = new PointerLockControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 
-// Ajustar los parámetros de los controles
-controls.movementSpeed = 10;  // Ajusta la velocidad de movimiento
-controls.lookSpeed = 0.05;    // Ajusta la sensibilidad del movimiento del ratón
+// Ajustar parámetros de los controles
+controls.enableDamping = true; // Habilitar el amortiguamiento para un movimiento más suave
+controls.dampingFactor = 0.25; // Factor de amortiguamiento
+controls.rotateSpeed = 0.5;    // Velocidad de rotación
 
-// Activar el bloqueo del ratón al hacer clic
-document.addEventListener('click', () => {
-    controls.lock();
-});
-
-// Configurar el evento de desbloqueo del ratón
-document.addEventListener('pointerlockchange', () => {
-    if (document.pointerLockElement === renderer.domElement) {
-        // Se ha bloqueado el ratón
-    } else {
-        // Se ha desbloqueado el ratón
-    }
-});
-
-// Bucle de animación
 function animate() {
     requestAnimationFrame(animate);
 
