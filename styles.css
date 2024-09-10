@@ -1,6 +1,9 @@
 body {
     margin: 0;
-    overflow: hidden;
+    padding: 0;
+    background-color: #000; /* Fondo negro */
+    color: #fff;
+    font-family: Arial, sans-serif;
 }
 
 #bubbles-container {
@@ -52,6 +55,7 @@ canvas {
     padding: 10px;
     color: #fff;
     text-align: center;
+    z-index: 9999;
 }
 
 .audio-player button {
@@ -67,6 +71,7 @@ canvas {
 .audio-player button:hover {
     background-color: #ddd;
 }
+
 
 
 
