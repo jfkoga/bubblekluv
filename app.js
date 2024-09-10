@@ -1,6 +1,7 @@
 import * as THREE from './libs/three.module.js';
 import { FirstPersonControls } from './libs/FirstPersonControls.js'; // Asegúrate de que apunte al archivo correcto
 
+
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
