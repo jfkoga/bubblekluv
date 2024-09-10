@@ -79,6 +79,44 @@ for (let i = 0; i < numBubbles; i++) {
 // Posicionar la cámara
 camera.position.z = 20;
 
+// Variables para el control del movimiento del ratón
+let isMouseDown = false;
+let prevMouseX = 0;
+let prevMouseY = 0;
+const mouseSensitivity = 0.002;
+
+window.addEventListener('mousedown', (event) => {
+    isMouseDown = true;
+});
+
+window.addEventListener('mouseup', (event) => {
+    isMouseDown = false;
+});
+
+window.addEventListener('mousemove', (event) => {
+    if (!isMouseDown) return;
+
+    const deltaX = event.clientX - prevMouseX;
+    const deltaY = event.clientY - prevMouseY;
+
+    const rotationSpeedX = deltaX * mouseSensitivity;
+    const rotationSpeedY = deltaY * mouseSensitivity;
+
+    // Aplicar la rotación a la cámara
+    camera.rotation.y -= rotationSpeedX;
+    camera.rotation.x -= rotationSpeedY;
+
+    // Restringir la rotación vertical para evitar que la cámara se dé la vuelta
+    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+
+    prevMouseX = event.clientX;
+    prevMouseY = event.clientY;
+});
+
+// Inicializar la posición del ratón
+prevMouseX = window.innerWidth / 2;
+prevMouseY = window.innerHeight / 2;
+
 function animate() {
     requestAnimationFrame(animate);
 
