@@ -40,3 +40,13 @@ canvas {
     z-index: 1; /* Debe estar detrás de las burbujas, pero delante del video */
     pointer-events: none; /* Permite que los clics pasen a través de esta capa */
 }
+
+
+#logo-overlay {
+    position: absolute;
+    top: 20px;  /* Ajusta la posición vertical */
+    left: 20px; /* Ajusta la posición horizontal */
+    width: 150px;  /* Ajusta el tamaño del logotipo */
+    z-index: 1000; /* Asegura que esté por encima del canvas de WebGL */
+    pointer-events: none; /* Permite que los eventos del ratón pasen al canvas debajo */
+}
