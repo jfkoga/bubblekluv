@@ -43,6 +43,31 @@ canvas {
     height: auto;
 }
 
+.audio-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #000;
+    border-radius: 5px;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+}
+
+.audio-player button {
+    background-color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: #000;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.audio-player button:hover {
+    background-color: #ddd;
+}
+
 
 
 
