@@ -10,94 +10,85 @@ document.getElementById('bubbles-container').appendChild(renderer.domElement);
 // Variables para cubemaps
 const cubemaps = {
     clubEntrance: [
-        'textures/skybox/bblklv-clubentrance-01/px.png', // derecha
-        'textures/skybox/bblklv-clubentrance-01/nx.png', // izquierda
-        'textures/skybox/bblklv-clubentrance-01/py.png', // arriba
-        'textures/skybox/bblklv-clubentrance-01/ny.png', // abajo
-        'textures/skybox/bblklv-clubentrance-01/pz.png', // frente
-        'textures/skybox/bblklv-clubentrance-01/nz.png'  // atrás
+        'textures/skybox/bblklv-clubentrance-01/px.png',
+        'textures/skybox/bblklv-clubentrance-01/nx.png',
+        'textures/skybox/bblklv-clubentrance-01/py.png',
+        'textures/skybox/bblklv-clubentrance-01/ny.png',
+        'textures/skybox/bblklv-clubentrance-01/pz.png',
+        'textures/skybox/bblklv-clubentrance-01/nz.png'
     ],
     city: [
-        'textures/skybox/bblklv-city-01/px.png', // derecha
-        'textures/skybox/bblklv-city-01/nx.png', // izquierda
-        'textures/skybox/bblklv-city-01/py.png', // arriba
-        'textures/skybox/bblklv-city-01/ny.png', // abajo
-        'textures/skybox/bblklv-city-01/pz.png', // frente
-        'textures/skybox/bblklv-city-01/nz.png'  // atrás
+        'textures/skybox/bblklv-city-01/px.png',
+        'textures/skybox/bblklv-city-01/nx.png',
+        'textures/skybox/bblklv-city-01/py.png',
+        'textures/skybox/bblklv-city-01/ny.png',
+        'textures/skybox/bblklv-city-01/pz.png',
+        'textures/skybox/bblklv-city-01/nz.png'
     ]
 };
 
-let currentCubemap = 'clubEntrance'; // Inicializar con el cubemap de entrada
+let currentCubemap = 'clubEntrance'; // Inicializar con el primer cubemap
 
 // Función para cargar un cubemap
 const loader = new THREE.CubeTextureLoader();
 function loadCubeMap(name) {
-    scene.background = loader.load(cubemaps[name]);
+    const textureCube = loader.load(cubemaps[name]);
+    scene.background = textureCube;
     currentCubemap = name;
 }
 
 // Inicializar el cubemap inicial
 loadCubeMap('clubEntrance');
 
-// Crear luces para dar realismo
+// Crear luces
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040); // Luz suave ambiental
+const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-// Crear burbujas
-const numBubbles = 100; // Número de burbujas
-const bubbles = [];
-const bubbleSize = 1;
+// Variables para el control del movimiento del ratón
+let isMouseDown = false;
+let prevMouseX = 0;
+let prevMouseY = 0;
+let targetRotationX = 0;
+let targetRotationY = 0;
+const mouseSensitivity = 0.002;
 
-for (let i = 0; i < numBubbles; i++) {
-    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+// Eventos para el desplazamiento del cubemap
+window.addEventListener('mousedown', (event) => {
+    isMouseDown = true;
+    prevMouseX = event.clientX;
+    prevMouseY = event.clientY;
+});
 
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.1,
-        transmission: 1,  // Hacer el material transparente
-        thickness: 0.5,   // Controla el grosor de la burbuja para efectos de refracción
-        reflectivity: 1,
-        clearcoat: 1,     // Efecto de brillo externo
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 0.6
-    });
+window.addEventListener('mouseup', () => {
+    isMouseDown = false;
+    targetRotationX = camera.rotation.y;
+    targetRotationY = camera.rotation.x;
+});
 
-    const bubble = new THREE.Mesh(geometry, material);
+window.addEventListener('mousemove', (event) => {
+    if (!isMouseDown) return;
 
-    // Posicionar burbujas aleatoriamente
-    bubble.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
-    );
+    const deltaX = event.clientX - prevMouseX;
+    const deltaY = event.clientY - prevMouseY;
 
-    // Añadir movimiento de rotación y traslación
-    bubble.userData = {
-        movement: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02
-        ),
-        rotationSpeed: new THREE.Vector3(
-            Math.random() * 0.01,
-            Math.random() * 0.01,
-            Math.random() * 0.01
-        )
-    };
+    const rotationSpeedX = deltaX * mouseSensitivity;
+    const rotationSpeedY = deltaY * mouseSensitivity;
 
-    bubbles.push(bubble);
-    scene.add(bubble);
-}
+    camera.rotation.y -= rotationSpeedX;
+    camera.rotation.x -= rotationSpeedY;
 
-// Posicionar la cámara
-camera.position.z = 20;
+    // Limitar la rotación vertical para evitar giros indeseados
+    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 
-// Variables para detección de clics
+    prevMouseX = event.clientX;
+    prevMouseY = event.clientY;
+});
+
+// Raycaster para detectar clics en el cubemap
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
@@ -109,58 +100,34 @@ window.addEventListener('click', (event) => {
     // Configurar el raycaster
     raycaster.setFromCamera(mouse, camera);
 
-    // Detectar intersección con el fondo (cubemap)
+    // Verificar colisión con el fondo (cubemap)
     const intersects = raycaster.intersectObjects(scene.children, false);
 
-    if (intersects.length > 0) {
-        const intersection = intersects[0];
-
-        // Cambiar cubemap según la cara clickeada
-        if (currentCubemap === 'clubEntrance') {
-            loadCubeMap('city');
-        } else {
-            loadCubeMap('clubEntrance');
-        }
+    // Si hay intersección, cambiar al otro cubemap
+    if (currentCubemap === 'clubEntrance') {
+        loadCubeMap('city');
+    } else {
+        loadCubeMap('clubEntrance');
     }
 });
 
+// Animación y desplazamiento suave
 function animate() {
     requestAnimationFrame(animate);
 
-    // Actualizar el movimiento y rotación de las burbujas
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.userData.movement);
-        bubble.rotation.x += bubble.userData.rotationSpeed.x;
-        bubble.rotation.y += bubble.userData.rotationSpeed.y;
-        bubble.rotation.z += bubble.userData.rotationSpeed.z;
-
-        // Rebotar burbujas en los límites
-        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
-    });
+    // Interpolación para el desplazamiento suave cuando no se arrastra el ratón
+    if (!isMouseDown) {
+        camera.rotation.x += (targetRotationY - camera.rotation.x) * 0.1;
+        camera.rotation.y += (targetRotationX - camera.rotation.y) * 0.1;
+    }
 
     renderer.render(scene, camera);
 }
 animate();
 
+// Ajustar la vista al redimensionar la ventana
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const audio = document.getElementById('audio');
-    
-    playPauseBtn.addEventListener('click', function() {
-        if (audio.paused) {
-            audio.play();
-            playPauseBtn.textContent = 'Pause';
-        } else {
-            audio.pause();
-            playPauseBtn.textContent = 'Play';
-        }
-    });
 });
