@@ -13,12 +13,12 @@ loader.setPath('textures/skybox/');
 
 // Cargar las texturas del primer cubemap
 const initialTextureCube = loader.load([
-    'bblklv-clubentrance-01/px.png',
-    'bblklv-clubentrance-01/nx.png',
-    'bblklv-clubentrance-01/py.png',
-    'bblklv-clubentrance-01/ny.png',
-    'bblklv-clubentrance-01/pz.png',
-    'bblklv-clubentrance-01/nz.png'
+    'textures/skybox/bblklv-clubentrance-01/px.png',
+    'textures/skybox/bblklv-clubentrance-01/nx.png',
+    'textures/skybox/bblklv-clubentrance-01/py.png',
+    'textures/skybox/bblklv-clubentrance-01/ny.png',
+    'textures/skybox/bblklv-clubentrance-01/pz.png',
+    'textures/skybox/bblklv-clubentrance-01/nz.png'
 ]);
 
 scene.background = initialTextureCube;
@@ -26,12 +26,12 @@ scene.background = initialTextureCube;
 // Agregar un cubo de depuración para verificar orientación de texturas
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 const materials = [
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/px.png') }),
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/nx.png') }),
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/py.png') }),
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/ny.png') }),
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/pz.png') }),
-    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/nz.png') })
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/px.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/nx.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/py.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/ny.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/pz.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('textures/skybox/bblklv-clubentrance-01/nz.png') })
 ];
 const cube = new THREE.Mesh(geometry, materials);
 cube.scale.set(10, 10, 10); // Escalar para ver cómo encajan las texturas.
@@ -139,12 +139,12 @@ window.addEventListener('mousemove', (event) => {
 // Cambiar cubemap al hacer clic
 document.addEventListener('click', () => {
     const newTextureCube = loader.load([
-        'bblklv-city-01/px.png',
-        'bblklv-city-01/nx.png',
-        'bblklv-city-01/py.png',
-        'bblklv-city-01/ny.png',
-        'bblklv-city-01/pz.png',
-        'bblklv-city-01/nz.png'
+        'textures/skybox/bblklv-city-01/px.png',
+        'textures/skybox/bblklv-city-01/nx.png',
+        'textures/skybox/bblklv-city-01/py.png',
+        'textures/skybox/bblklv-city-01/ny.png',
+        'textures/skybox/bblklv-city-01/pz.png',
+        'textures/skybox/bblklv-city-01/nz.png'
     ]);
     scene.background = newTextureCube;
 });
