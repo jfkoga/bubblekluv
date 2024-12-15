@@ -7,56 +7,102 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Variables para cubemaps
-const cubemaps = {
-    clubEntrance: [
-        'textures/skybox/bblklv-clubentrance-01/px.png',
-        'textures/skybox/bblklv-clubentrance-01/nx.png',
-        'textures/skybox/bblklv-clubentrance-01/py.png',
-        'textures/skybox/bblklv-clubentrance-01/ny.png',
-        'textures/skybox/bblklv-clubentrance-01/pz.png',
-        'textures/skybox/bblklv-clubentrance-01/nz.png'
-    ],
-    city: [
-        'textures/skybox/bblklv-city-01/px.png',
-        'textures/skybox/bblklv-city-01/nx.png',
-        'textures/skybox/bblklv-city-01/py.png',
-        'textures/skybox/bblklv-city-01/ny.png',
-        'textures/skybox/bblklv-city-01/pz.png',
-        'textures/skybox/bblklv-city-01/nz.png'
-    ]
-};
-
-let currentCubemap = 'clubEntrance'; // Inicializar con el primer cubemap
-
-// Función para cargar un cubemap
+// Crear el cubemap para el skybox
 const loader = new THREE.CubeTextureLoader();
-function loadCubeMap(name) {
-    const textureCube = loader.load(cubemaps[name]);
-    scene.background = textureCube;
-    currentCubemap = name;
-}
+loader.setPath('textures/skybox/');
 
-// Inicializar el cubemap inicial
-loadCubeMap('clubEntrance');
+// Cargar las texturas del primer cubemap
+const initialTextureCube = loader.load([
+    'bblklv-clubentrance-01/px.png',
+    'bblklv-clubentrance-01/nx.png',
+    'bblklv-clubentrance-01/py.png',
+    'bblklv-clubentrance-01/ny.png',
+    'bblklv-clubentrance-01/pz.png',
+    'bblklv-clubentrance-01/nz.png'
+]);
 
-// Crear luces
+scene.background = initialTextureCube;
+
+// Agregar un cubo de depuración para verificar orientación de texturas
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const materials = [
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/px.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/nx.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/py.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/ny.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/pz.png') }),
+    new THREE.MeshBasicMaterial({ map: loader.load('bblklv-clubentrance-01/nz.png') })
+];
+const cube = new THREE.Mesh(geometry, materials);
+cube.scale.set(10, 10, 10); // Escalar para ver cómo encajan las texturas.
+scene.add(cube);
+
+// Crear luces para dar realismo
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040);
+const ambientLight = new THREE.AmbientLight(0x404040); // Luz suave ambiental
 scene.add(ambientLight);
+
+// Crear burbujas
+const numBubbles = 100; // Número de burbujas
+const bubbles = [];
+const bubbleSize = 1;
+
+for (let i = 0; i < numBubbles; i++) {
+    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+
+    const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
+        transmission: 1,
+        thickness: 0.5,
+        reflectivity: 1,
+        clearcoat: 1,
+        clearcoatRoughness: 0,
+        transparent: true,
+        opacity: 0.6
+    });
+
+    const bubble = new THREE.Mesh(geometry, material);
+
+    bubble.position.set(
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30
+    );
+
+    bubble.userData = {
+        movement: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02
+        ),
+        rotationSpeed: new THREE.Vector3(
+            Math.random() * 0.01,
+            Math.random() * 0.01,
+            Math.random() * 0.01
+        )
+    };
+
+    bubbles.push(bubble);
+    scene.add(bubble);
+}
+
+// Posicionar la cámara
+camera.position.z = 20;
 
 // Variables para el control del movimiento del ratón
 let isMouseDown = false;
 let prevMouseX = 0;
 let prevMouseY = 0;
+let currentMouseX = 0;
+let currentMouseY = 0;
 let targetRotationX = 0;
 let targetRotationY = 0;
 const mouseSensitivity = 0.002;
 
-// Eventos para el desplazamiento del cubemap
 window.addEventListener('mousedown', (event) => {
     isMouseDown = true;
     prevMouseX = event.clientX;
@@ -72,8 +118,11 @@ window.addEventListener('mouseup', () => {
 window.addEventListener('mousemove', (event) => {
     if (!isMouseDown) return;
 
-    const deltaX = event.clientX - prevMouseX;
-    const deltaY = event.clientY - prevMouseY;
+    currentMouseX = event.clientX;
+    currentMouseY = event.clientY;
+
+    const deltaX = currentMouseX - prevMouseX;
+    const deltaY = currentMouseY - prevMouseY;
 
     const rotationSpeedX = deltaX * mouseSensitivity;
     const rotationSpeedY = deltaY * mouseSensitivity;
@@ -81,51 +130,48 @@ window.addEventListener('mousemove', (event) => {
     camera.rotation.y -= rotationSpeedX;
     camera.rotation.x -= rotationSpeedY;
 
-    // Limitar la rotación vertical para evitar giros indeseados
     camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 
-    prevMouseX = event.clientX;
-    prevMouseY = event.clientY;
+    prevMouseX = currentMouseX;
+    prevMouseY = currentMouseY;
 });
 
-// Raycaster para detectar clics en el cubemap
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-window.addEventListener('click', (event) => {
-    // Normalizar coordenadas del mouse
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-    // Configurar el raycaster
-    raycaster.setFromCamera(mouse, camera);
-
-    // Verificar colisión con el fondo (cubemap)
-    const intersects = raycaster.intersectObjects(scene.children, false);
-
-    // Si hay intersección, cambiar al otro cubemap
-    if (currentCubemap === 'clubEntrance') {
-        loadCubeMap('city');
-    } else {
-        loadCubeMap('clubEntrance');
-    }
+// Cambiar cubemap al hacer clic
+document.addEventListener('click', () => {
+    const newTextureCube = loader.load([
+        'bblklv-city-01/px.png',
+        'bblklv-city-01/nx.png',
+        'bblklv-city-01/py.png',
+        'bblklv-city-01/ny.png',
+        'bblklv-city-01/pz.png',
+        'bblklv-city-01/nz.png'
+    ]);
+    scene.background = newTextureCube;
 });
 
-// Animación y desplazamiento suave
 function animate() {
     requestAnimationFrame(animate);
 
-    // Interpolación para el desplazamiento suave cuando no se arrastra el ratón
     if (!isMouseDown) {
         camera.rotation.x += (targetRotationY - camera.rotation.x) * 0.1;
         camera.rotation.y += (targetRotationX - camera.rotation.y) * 0.1;
     }
 
+    bubbles.forEach(bubble => {
+        bubble.position.add(bubble.userData.movement);
+        bubble.rotation.x += bubble.userData.rotationSpeed.x;
+        bubble.rotation.y += bubble.userData.rotationSpeed.y;
+        bubble.rotation.z += bubble.userData.rotationSpeed.z;
+
+        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
+    });
+
     renderer.render(scene, camera);
 }
 animate();
 
-// Ajustar la vista al redimensionar la ventana
 window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
