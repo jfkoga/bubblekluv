@@ -1,4 +1,5 @@
 import * as THREE from './libs/three.module.js';
+import TWEEN from '@tweenjs/tween.js';
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -79,75 +80,54 @@ for (let i = 0; i < numBubbles; i++) {
 // Posicionar la cámara
 camera.position.z = 20;
 
-// Variables para el control del movimiento del ratón
-let isMouseDown = false;
-let prevMouseX = 0;
-let prevMouseY = 0;
-let currentMouseX = 0;
-let currentMouseY = 0;
-let targetRotationX = 0;
-let targetRotationY = 0;
-const mouseSensitivity = 0.002;
+// Movimiento automático de la cámara entre cubemaps
+let currentIndex = 0;
+const positions = [
+  new THREE.Vector3(-10, 0, 0), // Izquierda
+  new THREE.Vector3(0, 0, 0),   // Centro
+  new THREE.Vector3(10, 0, 0)   // Derecha
+];
 
-window.addEventListener('mousedown', (event) => {
-    isMouseDown = true;
-    
-    // Al hacer clic, establecer el objetivo de rotación a la posición actual
-    prevMouseX = event.clientX;
-    prevMouseY = event.clientY;
+const moveCamera = (direction) => {
+  if (direction === 'right' && currentIndex < positions.length - 1) {
+    currentIndex++;
+  } else if (direction === 'left' && currentIndex > 0) {
+    currentIndex--;
+  }
+
+  const targetPosition = positions[currentIndex];
+  new TWEEN.Tween(camera.position)
+    .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z }, 1000)
+    .easing(TWEEN.Easing.Quadratic.Out)
+    .start();
+};
+
+document.addEventListener('mousedown', (event) => {
+  if (event.clientX > window.innerWidth / 2) {
+    moveCamera('right');
+  } else {
+    moveCamera('left');
+  }
 });
 
-window.addEventListener('mouseup', () => {
-    isMouseDown = false;
-
-    // Actualizar las rotaciones objetivo a la posición actual de la cámara
-    targetRotationX = camera.rotation.y;
-    targetRotationY = camera.rotation.x;
-});
-
-window.addEventListener('mousemove', (event) => {
-    if (!isMouseDown) return;
-
-    // Obtener la posición actual del ratón
-    currentMouseX = event.clientX;
-    currentMouseY = event.clientY;
-
-    // Calcular las diferencias entre la posición actual y la anterior
-    const deltaX = currentMouseX - prevMouseX;
-    const deltaY = currentMouseY - prevMouseY;
-
-    // Ajustar la rotación de la cámara en función del movimiento del ratón mientras se mantiene presionado el botón
-    const rotationSpeedX = deltaX * mouseSensitivity;
-    const rotationSpeedY = deltaY * mouseSensitivity;
-
-    camera.rotation.y -= rotationSpeedX;
-    camera.rotation.x -= rotationSpeedY;
-
-    // Restringir la rotación vertical para evitar que la cámara se dé la vuelta
-    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
-
-    // Actualizar las posiciones previas del ratón para el siguiente cuadro
-    prevMouseX = currentMouseX;
-    prevMouseY = currentMouseY;
+document.addEventListener('mousemove', (event) => {
+  if (event.movementX > 10) {
+    moveCamera('right');
+  } else if (event.movementX < -10) {
+    moveCamera('left');
+  }
 });
 
 function animate() {
     requestAnimationFrame(animate);
-
-    // Interpolar suavemente hacia la nueva rotación objetivo al hacer clic
-    if (!isMouseDown) {
-        camera.rotation.x += (targetRotationY - camera.rotation.x) * 0.1;
-        camera.rotation.y += (targetRotationX - camera.rotation.y) * 0.1;
-    }
-
-    // Actualizar el movimiento y rotación de las burbujas
+    TWEEN.update();
+    
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.userData.movement);
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
         bubble.rotation.y += bubble.userData.rotationSpeed.y;
         bubble.rotation.z += bubble.userData.rotationSpeed.z;
 
-        // Rebotar burbujas en los límites
         if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
@@ -162,7 +142,6 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 });
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const playPauseBtn = document.getElementById('playPauseBtn');
