@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import TWEEN from '@tweenjs/tween.js';
+import * as TWEEN from './libs/tween.umd.js'; // Asegúrate de tener este archivo en 'libs/'
 
 // Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -9,130 +9,57 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
 // Crear el cubemap para el skybox
-const loader = new THREE.CubeTextureLoader();
+const loader = new THREE.CubeTextureLoader().setPath('textures/skybox/bblklv-clubentrance-01/');
 const textureCube = loader.load([
-    'textures/skybox/bblklv-clubentrance-01/px.png', // derecha
-    'textures/skybox/bblklv-clubentrance-01/nx.png', // izquierda
-    'textures/skybox/bblklv-clubentrance-01/py.png', // arriba
-    'textures/skybox/bblklv-clubentrance-01/ny.png', // abajo
-    'textures/skybox/bblklv-clubentrance-01/pz.png', // frente
-    'textures/skybox/bblklv-clubentrance-01/nz.png'  // atrás
+    'px.png', 'nx.png', 'py.png', 'ny.png', 'pz.png', 'nz.png'
 ]);
-
-// Establecer el fondo de la escena con el cubemap
 scene.background = textureCube;
 
-// Crear luces para dar realismo
+// Crear luces
 const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040); // Luz suave ambiental
+const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
-
-// Crear burbujas
-const numBubbles = 100; // Número de burbujas
-const bubbles = [];
-const bubbleSize = 1;
-
-for (let i = 0; i < numBubbles; i++) {
-    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.1,
-        transmission: 1,  // Hacer el material transparente
-        thickness: 0.5,   // Controla el grosor de la burbuja para efectos de refracción
-        reflectivity: 1,
-        clearcoat: 1,     // Efecto de brillo externo
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 0.6
-    });
-
-    const bubble = new THREE.Mesh(geometry, material);
-
-    // Posicionar burbujas aleatoriamente
-    bubble.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
-    );
-
-    // Añadir movimiento de rotación y traslación
-    bubble.userData = {
-        movement: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02
-        ),
-        rotationSpeed: new THREE.Vector3(
-            Math.random() * 0.01,
-            Math.random() * 0.01,
-            Math.random() * 0.01
-        )
-    };
-
-    bubbles.push(bubble);
-    scene.add(bubble);
-}
 
 // Posicionar la cámara
 camera.position.z = 20;
 
-// Movimiento automático de la cámara entre cubemaps
-let currentIndex = 0;
-const positions = [
-  new THREE.Vector3(-10, 0, 0), // Izquierda
-  new THREE.Vector3(0, 0, 0),   // Centro
-  new THREE.Vector3(10, 0, 0)   // Derecha
+// Movimiento automático entre cubemaps
+const cubemapPositions = [
+    new THREE.Vector3(10, 0, 0),  // Derecha
+    new THREE.Vector3(-10, 0, 0), // Izquierda
+    new THREE.Vector3(0, 10, 0),  // Arriba
+    new THREE.Vector3(0, -10, 0), // Abajo
+    new THREE.Vector3(0, 0, 10),  // Adelante
+    new THREE.Vector3(0, 0, -10)  // Atrás
 ];
 
-const moveCamera = (direction) => {
-  if (direction === 'right' && currentIndex < positions.length - 1) {
-    currentIndex++;
-  } else if (direction === 'left' && currentIndex > 0) {
-    currentIndex--;
-  }
+let currentPositionIndex = 0;
 
-  const targetPosition = positions[currentIndex];
-  new TWEEN.Tween(camera.position)
-    .to({ x: targetPosition.x, y: targetPosition.y, z: targetPosition.z }, 1000)
-    .easing(TWEEN.Easing.Quadratic.Out)
-    .start();
-};
+function moveCamera(direction) {
+    currentPositionIndex += direction;
+    if (currentPositionIndex < 0) currentPositionIndex = cubemapPositions.length - 1;
+    if (currentPositionIndex >= cubemapPositions.length) currentPositionIndex = 0;
 
-document.addEventListener('mousedown', (event) => {
-  if (event.clientX > window.innerWidth / 2) {
-    moveCamera('right');
-  } else {
-    moveCamera('left');
-  }
-});
+    new TWEEN.Tween(camera.position)
+        .to(cubemapPositions[currentPositionIndex], 1000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .start();
+}
 
-document.addEventListener('mousemove', (event) => {
-  if (event.movementX > 10) {
-    moveCamera('right');
-  } else if (event.movementX < -10) {
-    moveCamera('left');
-  }
+window.addEventListener('mousedown', (event) => {
+    if (event.clientX > window.innerWidth / 2) {
+        moveCamera(1); // Mover a la derecha
+    } else {
+        moveCamera(-1); // Mover a la izquierda
+    }
 });
 
 function animate() {
     requestAnimationFrame(animate);
     TWEEN.update();
-    
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.userData.movement);
-        bubble.rotation.x += bubble.userData.rotationSpeed.x;
-        bubble.rotation.y += bubble.userData.rotationSpeed.y;
-        bubble.rotation.z += bubble.userData.rotationSpeed.z;
-
-        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
-    });
-
     renderer.render(scene, camera);
 }
 animate();
@@ -141,19 +68,4 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const audio = document.getElementById('audio');
-    
-    playPauseBtn.addEventListener('click', function() {
-        if (audio.paused) {
-            audio.play();
-            playPauseBtn.textContent = 'Pause';
-        } else {
-            audio.pause();
-            playPauseBtn.textContent = 'Play';
-        }
-    });
 });
