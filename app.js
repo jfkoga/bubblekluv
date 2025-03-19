@@ -40,11 +40,11 @@ window.addEventListener('keydown', (event) => {
 
     switch (event.key) {
         case 'ArrowRight':
-            targetRotation -= Math.PI / 2; // Rotar 60° a la derecha
+            targetRotation -= Math.PI / 2; // Rotar 90° a la derecha
             rotating = true;
             break;
         case 'ArrowLeft':
-            targetRotation += Math.PI / 2; // Rotar 60° a la izquierda
+            targetRotation += Math.PI / 2; // Rotar 90° a la izquierda
             rotating = true;
             break;
     }
