@@ -78,7 +78,7 @@ animate();
 // -------------------------
 //      AUDIO PLAYER
 // -------------------------
-const audio = new Audio('audio/music.mp3'); // Ruta del archivo MP3
+const audio = new Audio('audio/bubblekluv-waitforme.mp3'); // Ruta del archivo MP3
 audio.loop = true;
 audio.volume = 0.5; // Volumen inicial
 
