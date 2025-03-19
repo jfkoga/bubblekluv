@@ -50,6 +50,24 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
+// Crear burbujas flotantes
+const bubbleGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+const bubbleMaterial = new THREE.MeshBasicMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.7 });
+
+const bubbles = [];
+const numBubbles = 30;
+
+for (let i = 0; i < numBubbles; i++) {
+    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    bubble.position.set(
+        (Math.random() - 0.5) * 50, // Posición X aleatoria
+        Math.random() * 10 - 5, // Posición Y aleatoria
+        (Math.random() - 0.5) * 50 // Posición Z aleatoria
+    );
+    scene.add(bubble);
+    bubbles.push(bubble);
+}
+
 // Función de animación
 function animate() {
     requestAnimationFrame(animate);
@@ -58,17 +76,23 @@ function animate() {
     if (rotating) {
         currentRotation += (targetRotation - currentRotation) * rotationSpeed;
 
-        // Si la diferencia es menor a un umbral, finalizamos la interpolación
         if (Math.abs(targetRotation - currentRotation) < 0.01) {
             currentRotation = targetRotation;
-            rotating = false; // Finaliza el movimiento
+            rotating = false;
         }
 
-        // Aplicamos la rotación a la cámara
         camera.position.x = Math.sin(currentRotation) * 20;
         camera.position.z = Math.cos(currentRotation) * 20;
         camera.lookAt(0, 0, 0);
     }
+
+    // Animar burbujas flotando
+    bubbles.forEach(bubble => {
+        bubble.position.y += 0.02; // Mover burbuja hacia arriba
+        if (bubble.position.y > 5) {
+            bubble.position.y = -5; // Reiniciar la posición cuando salga de la vista
+        }
+    });
 
     renderer.render(scene, camera);
 }
@@ -78,23 +102,32 @@ animate();
 // -------------------------
 //      AUDIO PLAYER
 // -------------------------
-const audio = new Audio('audio/bubblekluv-waitforme.mp3'); // Ruta del archivo MP3
+const audio = new Audio();
+audio.src = 'audio/bubblekluv-waitforme.mp3';
 audio.loop = true;
-audio.volume = 0.5; // Volumen inicial
+audio.volume = 0.5;
+
+// Verificar que el navegador permita la reproducción
+document.addEventListener('click', () => {
+    if (audio.paused) {
+        audio.play().catch(error => console.error("Error al reproducir audio:", error));
+    }
+}, { once: true });
 
 const playButton = document.createElement('button');
 playButton.innerText = '▶️ Play';
 playButton.style.position = 'fixed';
 playButton.style.bottom = '20px';
 playButton.style.right = '20px';
-playButton.style.width = '80px';  // Hacerlo más grande
-playButton.style.height = '80px'; // Hacerlo más grande
-playButton.style.borderRadius = '50%'; // Forma redonda
-playButton.style.fontSize = '16px';
+playButton.style.width = '90px';
+playButton.style.height = '90px';
+playButton.style.borderRadius = '50%';
+playButton.style.fontSize = '18px';
 playButton.style.border = 'none';
-playButton.style.background = 'rgba(0, 0, 0, 0.7)';
+playButton.style.background = 'rgba(0, 0, 0, 0.8)';
 playButton.style.color = 'white';
 playButton.style.cursor = 'pointer';
+playButton.style.boxShadow = '0px 0px 10px rgba(255, 255, 255, 0.5)';
 
 // Control de reproducción
 let isPlaying = false;
@@ -103,7 +136,7 @@ playButton.addEventListener('click', () => {
         audio.pause();
         playButton.innerText = '▶️ Play';
     } else {
-        audio.play();
+        audio.play().catch(error => console.error("Error al iniciar audio:", error));
         playButton.innerText = '⏸ Pause';
     }
     isPlaying = !isPlaying;
