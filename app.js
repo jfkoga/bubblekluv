@@ -28,38 +28,24 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-// Posiciones predefinidas para la cámara
-const positions = [
-    { x: 20, y: 0, z: 0 },   // Derecha
-    { x: -20, y: 0, z: 0 },  // Izquierda
-    { x: 0, y: 20, z: 0 },   // Arriba
-    { x: 0, y: -20, z: 0 },  // Abajo
-    { x: 0, y: 0, z: 20 },   // Frente
-    { x: 0, y: 0, z: -20 }   // Atrás
-];
+// Configuración de rotación
+let targetRotation = 0;  // Rotación objetivo en radianes
+let currentRotation = 0; // Rotación actual
+const rotationSpeed = 0.05; // Velocidad de interpolación
+let rotating = false; // Control de estado de rotación
 
-let currentPosition = 4; // Iniciar en la posición de frente
-let targetPosition = positions[currentPosition]; // Posición objetivo
-camera.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
-camera.lookAt(0, 0, 0);
-
-// Velocidad de interpolación de la cámara
-const moveSpeed = 0.05;
-
-// Manejo del teclado para mover la cámara
+// Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
+    if (rotating) return; // Si ya está rotando, ignoramos nuevas entradas hasta que termine
+
     switch (event.key) {
         case 'ArrowRight':
-            targetPosition = positions[0]; // Derecha
+            targetRotation -= Math.PI / 3; // Rotar 60° a la derecha
+            rotating = true;
             break;
         case 'ArrowLeft':
-            targetPosition = positions[1]; // Izquierda
-            break;
-        case 'ArrowUp':
-            targetPosition = positions[2]; // Arriba
-            break;
-        case 'ArrowDown':
-            targetPosition = positions[3]; // Abajo
+            targetRotation += Math.PI / 3; // Rotar 60° a la izquierda
+            rotating = true;
             break;
     }
 });
@@ -68,11 +54,21 @@ window.addEventListener('keydown', (event) => {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Interpolación de la cámara hacia la posición objetivo
-    camera.position.lerp(targetPosition, moveSpeed);
+    // Si la cámara está en movimiento, interpolamos la rotación
+    if (rotating) {
+        currentRotation += (targetRotation - currentRotation) * rotationSpeed;
 
-    // Asegurarse de que la cámara siempre mire al centro (0, 0, 0)
-    camera.lookAt(0, 0, 0);
+        // Si la diferencia es menor a un umbral, finalizamos la interpolación
+        if (Math.abs(targetRotation - currentRotation) < 0.01) {
+            currentRotation = targetRotation;
+            rotating = false; // Finaliza el movimiento
+        }
+
+        // Aplicamos la rotación a la cámara
+        camera.position.x = Math.sin(currentRotation) * 20;
+        camera.position.z = Math.cos(currentRotation) * 20;
+        camera.lookAt(0, 0, 0);
+    }
 
     renderer.render(scene, camera);
 }
