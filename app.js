@@ -39,32 +39,42 @@ const positions = [
 ];
 
 let currentPosition = 4; // Iniciar en la posición de frente
-camera.position.set(positions[currentPosition].x, positions[currentPosition].y, positions[currentPosition].z);
+let targetPosition = positions[currentPosition]; // Posición objetivo
+camera.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
 camera.lookAt(0, 0, 0);
+
+// Velocidad de interpolación de la cámara
+const moveSpeed = 0.05;
 
 // Manejo del teclado para mover la cámara
 window.addEventListener('keydown', (event) => {
     switch (event.key) {
         case 'ArrowRight':
-            currentPosition = 0; // Derecha
+            targetPosition = positions[0]; // Derecha
             break;
         case 'ArrowLeft':
-            currentPosition = 1; // Izquierda
+            targetPosition = positions[1]; // Izquierda
             break;
         case 'ArrowUp':
-            currentPosition = 2; // Arriba
+            targetPosition = positions[2]; // Arriba
             break;
         case 'ArrowDown':
-            currentPosition = 3; // Abajo
+            targetPosition = positions[3]; // Abajo
             break;
     }
-    
-    camera.position.set(positions[currentPosition].x, positions[currentPosition].y, positions[currentPosition].z);
-    camera.lookAt(0, 0, 0);
 });
 
+// Función de animación
 function animate() {
     requestAnimationFrame(animate);
+
+    // Interpolación de la cámara hacia la posición objetivo
+    camera.position.lerp(targetPosition, moveSpeed);
+
+    // Asegurarse de que la cámara siempre mire al centro (0, 0, 0)
+    camera.lookAt(0, 0, 0);
+
     renderer.render(scene, camera);
 }
+
 animate();
