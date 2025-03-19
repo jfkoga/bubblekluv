@@ -74,3 +74,39 @@ function animate() {
 }
 
 animate();
+
+// -------------------------
+//      AUDIO PLAYER
+// -------------------------
+const audio = new Audio('audio/music.mp3'); // Ruta del archivo MP3
+audio.loop = true;
+audio.volume = 0.5; // Volumen inicial
+
+const playButton = document.createElement('button');
+playButton.innerText = '▶️ Play';
+playButton.style.position = 'fixed';
+playButton.style.bottom = '20px';
+playButton.style.right = '20px';
+playButton.style.width = '80px';  // Hacerlo más grande
+playButton.style.height = '80px'; // Hacerlo más grande
+playButton.style.borderRadius = '50%'; // Forma redonda
+playButton.style.fontSize = '16px';
+playButton.style.border = 'none';
+playButton.style.background = 'rgba(0, 0, 0, 0.7)';
+playButton.style.color = 'white';
+playButton.style.cursor = 'pointer';
+
+// Control de reproducción
+let isPlaying = false;
+playButton.addEventListener('click', () => {
+    if (isPlaying) {
+        audio.pause();
+        playButton.innerText = '▶️ Play';
+    } else {
+        audio.play();
+        playButton.innerText = '⏸ Pause';
+    }
+    isPlaying = !isPlaying;
+});
+
+document.body.appendChild(playButton);
