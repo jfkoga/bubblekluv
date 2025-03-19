@@ -18,7 +18,6 @@ const textureCube = loader.load([
     'textures/skybox/bblklv-clubentrance-01/nz.png'  // atrás
 ]);
 
-// Establecer el fondo de la escena con el cubemap
 scene.background = textureCube;
 
 // Crear luces
@@ -29,94 +28,43 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-// Crear burbujas
-const numBubbles = 100;
-const bubbles = [];
-const bubbleSize = 1;
+// Posiciones predefinidas para la cámara
+const positions = [
+    { x: 20, y: 0, z: 0 },   // Derecha
+    { x: -20, y: 0, z: 0 },  // Izquierda
+    { x: 0, y: 20, z: 0 },   // Arriba
+    { x: 0, y: -20, z: 0 },  // Abajo
+    { x: 0, y: 0, z: 20 },   // Frente
+    { x: 0, y: 0, z: -20 }   // Atrás
+];
 
-for (let i = 0; i < numBubbles; i++) {
-    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.1,
-        transmission: 1,
-        thickness: 0.5,
-        reflectivity: 1,
-        clearcoat: 1,
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 0.6
-    });
+let currentPosition = 4; // Iniciar en la posición de frente
+camera.position.set(positions[currentPosition].x, positions[currentPosition].y, positions[currentPosition].z);
+camera.lookAt(0, 0, 0);
 
-    const bubble = new THREE.Mesh(geometry, material);
-    bubble.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
-    );
-
-    bubble.userData = {
-        movement: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02
-        ),
-        rotationSpeed: new THREE.Vector3(
-            Math.random() * 0.01,
-            Math.random() * 0.01,
-            Math.random() * 0.01
-        )
-    };
-
-    bubbles.push(bubble);
-    scene.add(bubble);
-}
-
-// Posicionar la cámara
-camera.position.z = 20;
-
-// Quitar eventos de movimiento de la cámara para fijar el cubemap
-window.removeEventListener('mousedown', () => {});
-window.removeEventListener('mouseup', () => {});
-window.removeEventListener('mousemove', () => {});
+// Manejo del teclado para mover la cámara
+window.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case 'ArrowRight':
+            currentPosition = 0; // Derecha
+            break;
+        case 'ArrowLeft':
+            currentPosition = 1; // Izquierda
+            break;
+        case 'ArrowUp':
+            currentPosition = 2; // Arriba
+            break;
+        case 'ArrowDown':
+            currentPosition = 3; // Abajo
+            break;
+    }
+    
+    camera.position.set(positions[currentPosition].x, positions[currentPosition].y, positions[currentPosition].z);
+    camera.lookAt(0, 0, 0);
+});
 
 function animate() {
     requestAnimationFrame(animate);
-
-    // Mantener las burbujas en movimiento
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.userData.movement);
-        bubble.rotation.x += bubble.userData.rotationSpeed.x;
-        bubble.rotation.y += bubble.userData.rotationSpeed.y;
-        bubble.rotation.z += bubble.userData.rotationSpeed.z;
-
-        // Rebotar burbujas en los límites
-        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
-    });
-
     renderer.render(scene, camera);
 }
 animate();
-
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    const audio = document.getElementById('audio');
-    
-    playPauseBtn.addEventListener('click', function() {
-        if (audio.paused) {
-            audio.play();
-            playPauseBtn.textContent = 'Pause';
-        } else {
-            audio.pause();
-            playPauseBtn.textContent = 'Play';
-        }
-    });
-});
