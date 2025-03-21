@@ -28,8 +28,30 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-// Crear burbujas con estética mejorada
-const numBubbles = 150; // Aumentado el número de burbujas
+// Configuración de rotación
+let targetRotation = 0;  // Rotación objetivo en radianes
+let currentRotation = 0; // Rotación actual
+const rotationSpeed = 0.05; // Velocidad de interpolación
+let rotating = false; // Control de estado de rotación
+
+// Manejo del teclado para rotar la cámara
+window.addEventListener('keydown', (event) => {
+    if (rotating) return; // Si ya está rotando, ignoramos nuevas entradas hasta que termine
+
+    switch (event.key) {
+        case 'ArrowRight':
+            targetRotation -= Math.PI / 4; // Rotar 45° a la derecha
+            rotating = true;
+            break;
+        case 'ArrowLeft':
+            targetRotation += Math.PI / 4; // Rotar 45° a la izquierda
+            rotating = true;
+            break;
+    }
+});
+
+// Crear burbujas
+const numBubbles = 150; // Número de burbujas
 const bubbles = [];
 const bubbleSize = 1;
 
@@ -39,10 +61,10 @@ for (let i = 0; i < numBubbles; i++) {
     const material = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         roughness: 0.1,
-        transmission: 1,  // Hacer el material transparente
-        thickness: 0.5,   // Controla el grosor de la burbuja para efectos de refracción
+        transmission: 1,
+        thickness: 0.5,
         reflectivity: 1,
-        clearcoat: 1,     // Efecto de brillo externo
+        clearcoat: 1,
         clearcoatRoughness: 0,
         transparent: true,
         opacity: 0.6
@@ -50,14 +72,12 @@ for (let i = 0; i < numBubbles; i++) {
 
     const bubble = new THREE.Mesh(geometry, material);
 
-    // Posicionar burbujas aleatoriamente
     bubble.position.set(
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 30
     );
 
-    // Añadir movimiento de rotación y traslación
     bubble.userData = {
         movement: new THREE.Vector3(
             (Math.random() - 0.5) * 0.02,
@@ -75,20 +95,29 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
-// Posicionar la cámara
-camera.position.z = 20;
-
 function animate() {
     requestAnimationFrame(animate);
 
-    // Actualizar el movimiento y rotación de las burbujas
+    // Si la cámara está en movimiento, interpolamos la rotación
+    if (rotating) {
+        currentRotation += (targetRotation - currentRotation) * rotationSpeed;
+
+        if (Math.abs(targetRotation - currentRotation) < 0.01) {
+            currentRotation = targetRotation;
+            rotating = false; 
+        }
+
+        camera.position.x = Math.sin(currentRotation) * 20;
+        camera.position.z = Math.cos(currentRotation) * 20;
+        camera.lookAt(0, 0, 0);
+    }
+
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.userData.movement);
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
         bubble.rotation.y += bubble.userData.rotationSpeed.y;
         bubble.rotation.z += bubble.userData.rotationSpeed.z;
 
-        // Rebotar burbujas en los límites
         if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
@@ -96,10 +125,5 @@ function animate() {
 
     renderer.render(scene, camera);
 }
-animate();
 
-window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-});
+animate();
