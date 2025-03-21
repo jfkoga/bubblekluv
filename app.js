@@ -28,30 +28,8 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0x404040);
 scene.add(ambientLight);
 
-// Configuración de rotación
-let targetRotation = 0;  // Rotación objetivo en radianes
-let currentRotation = 0; // Rotación actual
-const rotationSpeed = 0.05; // Velocidad de interpolación
-let rotating = false; // Control de estado de rotación
-
-// Manejo del teclado para rotar la cámara
-window.addEventListener('keydown', (event) => {
-    if (rotating) return; // Si ya está rotando, ignoramos nuevas entradas hasta que termine
-
-    switch (event.key) {
-        case 'ArrowRight':
-            targetRotation -= Math.PI / 4; // Rotar 45° a la derecha
-            rotating = true;
-            break;
-        case 'ArrowLeft':
-            targetRotation += Math.PI / 4; // Rotar 45° a la izquierda
-            rotating = true;
-            break;
-    }
-});
-
-// Crear burbujas
-const numBubbles = 100; // Número de burbujas
+// Crear burbujas con estética mejorada
+const numBubbles = 150; // Aumentado el número de burbujas
 const bubbles = [];
 const bubbleSize = 1;
 
@@ -97,24 +75,11 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
+// Posicionar la cámara
+camera.position.z = 20;
+
 function animate() {
     requestAnimationFrame(animate);
-
-    // Si la cámara está en movimiento, interpolamos la rotación
-    if (rotating) {
-        currentRotation += (targetRotation - currentRotation) * rotationSpeed;
-
-        // Si la diferencia es menor a un umbral, finalizamos la interpolación
-        if (Math.abs(targetRotation - currentRotation) < 0.01) {
-            currentRotation = targetRotation;
-            rotating = false; // Finaliza el movimiento
-        }
-
-        // Aplicamos la rotación a la cámara
-        camera.position.x = Math.sin(currentRotation) * 20;
-        camera.position.z = Math.cos(currentRotation) * 20;
-        camera.lookAt(0, 0, 0);
-    }
 
     // Actualizar el movimiento y rotación de las burbujas
     bubbles.forEach(bubble => {
@@ -122,9 +87,19 @@ function animate() {
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
         bubble.rotation.y += bubble.userData.rotationSpeed.y;
         bubble.rotation.z += bubble.userData.rotationSpeed.z;
+
+        // Rebotar burbujas en los límites
+        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
     renderer.render(scene, camera);
 }
-
 animate();
+
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+});
