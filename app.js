@@ -20,12 +20,12 @@ const textureCube = loader.load([
 
 scene.background = textureCube;
 
-// Crear luces
-const light = new THREE.DirectionalLight(0xffffff, 1);
+// Crear luces con mayor intensidad
+const light = new THREE.DirectionalLight(0xffffff, 2); // Aumenté la intensidad de 1 a 2
 light.position.set(0, 1, 1).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0x404040);
+const ambientLight = new THREE.AmbientLight(0x808080); // Aumenté de 0x404040 a 0x808080
 scene.add(ambientLight);
 
 // Configuración de rotación
