@@ -21,12 +21,16 @@ const textureCube = loader.load([
 scene.background = textureCube;
 
 // Crear luces con más intensidad
-const light = new THREE.DirectionalLight(0xffffff, 4); // Aumenté de 3 a 4
-light.position.set(0, 1, 1).normalize();
+const light = new THREE.DirectionalLight(0xffffff, 6); // Aumenté de 4 a 6 para más iluminación
+light.position.set(0, 2, 2).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0xd0d0d0); // Aumenté de 0xb0b0b0 a 0xd0d0d0
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Aumenté la intensidad para más brillo
 scene.add(ambientLight);
+
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5); // Luz adicional para más balance
+hemiLight.position.set(0, 5, 0);
+scene.add(hemiLight);
 
 // Configuración de rotación
 let targetRotation = 0;  // Rotación objetivo en radianes
@@ -67,7 +71,7 @@ for (let i = 0; i < numBubbles; i++) {
         clearcoat: 1,
         clearcoatRoughness: 0,
         transparent: true,
-        opacity: 0.6
+        opacity: 0.7 // Aumenté la opacidad para que refleje más luz
     });
 
     const bubble = new THREE.Mesh(geometry, material);
