@@ -139,7 +139,7 @@ function animate() {
             movingVertically = false;
         }
 
-        camera.position.y = currentVerticalPosition;
+        camera.position.y = currentVerticalPosition; // Mover la cámara en el eje Y
     }
 
     bubbles.forEach(bubble => {
