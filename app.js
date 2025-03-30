@@ -21,41 +21,41 @@ const textureCube = loader.load([
 scene.background = textureCube;
 
 // Crear luces con más intensidad
-const light = new THREE.DirectionalLight(0xffffff, 6); // Aumenté de 4 a 6 para más iluminación
+const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Aumenté la intensidad para más brillo
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5); // Luz adicional para más balance
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
 // Configuración de rotación
-let targetRotation = 0;  // Rotación objetivo en radianes
-let currentRotation = 0; // Rotación actual
-const rotationSpeed = 0.05; // Velocidad de interpolación
-let rotating = false; // Control de estado de rotación
+let targetRotation = 0;
+let currentRotation = 0;
+const rotationSpeed = 0.05;
+let rotating = false;
 
 // Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
-    if (rotating) return; // Si ya está rotando, ignoramos nuevas entradas hasta que termine
+    if (rotating) return;
 
     switch (event.key) {
         case 'ArrowRight':
-            targetRotation -= Math.PI / 4; // Rotar 45° a la derecha
+            targetRotation -= Math.PI / 4;
             rotating = true;
             break;
         case 'ArrowLeft':
-            targetRotation += Math.PI / 4; // Rotar 45° a la izquierda
+            targetRotation += Math.PI / 4;
             rotating = true;
             break;
     }
 });
 
 // Crear burbujas
-const numBubbles = 150; // Número de burbujas
+const numBubbles = 150;
 const bubbles = [];
 const bubbleSize = 1;
 
@@ -71,7 +71,7 @@ for (let i = 0; i < numBubbles; i++) {
         clearcoat: 1,
         clearcoatRoughness: 0,
         transparent: true,
-        opacity: 0.7 // Aumenté la opacidad para que refleje más luz
+        opacity: 0.7
     });
 
     const bubble = new THREE.Mesh(geometry, material);
@@ -102,13 +102,15 @@ for (let i = 0; i < numBubbles; i++) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Si la cámara está en movimiento, interpolamos la rotación
+    // Suavizar la rotación de la cámara
     if (rotating) {
-        currentRotation += (targetRotation - currentRotation) * rotationSpeed;
-
-        if (Math.abs(targetRotation - currentRotation) < 0.01) {
+        const deltaRotation = (targetRotation - currentRotation) * rotationSpeed;
+        
+        if (Math.abs(deltaRotation) < 0.005) {
             currentRotation = targetRotation;
-            rotating = false; 
+            rotating = false;
+        } else {
+            currentRotation += deltaRotation;
         }
 
         camera.position.x = Math.sin(currentRotation) * 20;
