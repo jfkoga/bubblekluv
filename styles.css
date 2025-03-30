@@ -23,17 +23,6 @@ canvas {
     z-index: 1;
 }
 
-/* Añadimos una capa semitransparente para oscurecer el video */
-#overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Ajusta el último valor para más o menos oscuridad */
-    z-index: 1; /* Debe estar detrás de las burbujas, pero delante del video */
-    pointer-events: none; /* Permite que los clics pasen a través de esta capa */
-}
 
 
 .audio-player {
