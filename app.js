@@ -7,125 +7,87 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Crear el cubemap para el skybox (FIJO, sin movimiento)
+// Crear el cubemap para el skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/skybox/bblklv-clubentrance-01/px.png', // derecha
-    'textures/skybox/bblklv-clubentrance-01/nx.png', // izquierda
-    'textures/skybox/bblklv-clubentrance-01/py.png', // arriba
-    'textures/skybox/bblklv-clubentrance-01/ny.png', // abajo
-    'textures/skybox/bblklv-clubentrance-01/pz.png', // frente
-    'textures/skybox/bblklv-clubentrance-01/nz.png'  // atrás
+    'textures/skybox/bblklv-clubentrance-01/px.png',
+    'textures/skybox/bblklv-clubentrance-01/nx.png',
+    'textures/skybox/bblklv-clubentrance-01/py.png',
+    'textures/skybox/bblklv-clubentrance-01/ny.png',
+    'textures/skybox/bblklv-clubentrance-01/pz.png',
+    'textures/skybox/bblklv-clubentrance-01/nz.png'
 ]);
 
 scene.background = textureCube;
 
-// Crear luces con más intensidad
-const light = new THREE.DirectionalLight(0xffffff, 6); // Aumenté de 4 a 6 para más iluminación
+// Luces
+const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Aumenté la intensidad para más brillo
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
 
-const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5); // Luz adicional para más balance
+const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Configuración de rotación
-let targetRotation = 0;  // Rotación objetivo en radianes
-let currentRotation = 0; // Rotación actual
-const rotationSpeed = 0.05; // Velocidad de interpolación
-let rotating = false; // Control de estado de rotación
+// Variables de rotación
+let targetRotation = 0;
+let currentRotation = 0;
+const rotationSpeed = 0.05;
+let rotating = false;
 
-// Manejo del teclado para rotar la cámara
+// Manejo del teclado
 window.addEventListener('keydown', (event) => {
-    if (rotating) return; // Si ya está rotando, ignoramos nuevas entradas hasta que termine
-
+    if (rotating) return;
     switch (event.key) {
         case 'ArrowRight':
-            targetRotation -= Math.PI / 4; // Rotar 45° a la derecha
+            targetRotation -= Math.PI / 4;
             rotating = true;
             break;
         case 'ArrowLeft':
-            targetRotation += Math.PI / 4; // Rotar 45° a la izquierda
+            targetRotation += Math.PI / 4;
             rotating = true;
             break;
     }
 });
 
-// Crear burbujas
-const numBubbles = 150; // Número de burbujas
-const bubbles = [];
-const bubbleSize = 1;
-
-for (let i = 0; i < numBubbles; i++) {
-    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+// Detección del mouse sobre la puerta en nx.png
+window.addEventListener('mousemove', (event) => {
+    const mouse = {
+        x: (event.clientX / window.innerWidth) * 2 - 1,
+        y: -(event.clientY / window.innerHeight) * 2 + 1
+    };
     
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.1,
-        transmission: 1,
-        thickness: 0.5,
-        reflectivity: 1,
-        clearcoat: 1,
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 0.7 // Aumenté la opacidad para que refleje más luz
-    });
-
-    const bubble = new THREE.Mesh(geometry, material);
-
-    bubble.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
-    );
-
-    bubble.userData = {
-        movement: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02
-        ),
-        rotationSpeed: new THREE.Vector3(
-            Math.random() * 0.01,
-            Math.random() * 0.01,
-            Math.random() * 0.01
-        )
+    // Definir coordenadas aproximadas de la puerta en nx.png (ajustar según sea necesario)
+    const doorBounds = {
+        xMin: -0.2, xMax: 0.2, // Posiciones X normalizadas de la puerta
+        yMin: -0.5, yMax: 0 // Posiciones Y normalizadas de la puerta
     };
 
-    bubbles.push(bubble);
-    scene.add(bubble);
-}
+    if (mouse.x > doorBounds.xMin && mouse.x < doorBounds.xMax && 
+        mouse.y > doorBounds.yMin && mouse.y < doorBounds.yMax) {
+        document.body.style.cursor = 'pointer'; // Cambiar cursor al pasar por la puerta
+    } else {
+        document.body.style.cursor = 'default';
+    }
+});
 
+// Animación
 function animate() {
     requestAnimationFrame(animate);
 
-    // Si la cámara está en movimiento, interpolamos la rotación
     if (rotating) {
         currentRotation += (targetRotation - currentRotation) * rotationSpeed;
-
         if (Math.abs(targetRotation - currentRotation) < 0.01) {
             currentRotation = targetRotation;
-            rotating = false; 
+            rotating = false;
         }
-
         camera.position.x = Math.sin(currentRotation) * 20;
         camera.position.z = Math.cos(currentRotation) * 20;
         camera.lookAt(0, 0, 0);
     }
-
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.userData.movement);
-        bubble.rotation.x += bubble.userData.rotationSpeed.x;
-        bubble.rotation.y += bubble.userData.rotationSpeed.y;
-        bubble.rotation.z += bubble.userData.rotationSpeed.z;
-
-        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
-    });
 
     renderer.render(scene, camera);
 }
