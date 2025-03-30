@@ -38,15 +38,9 @@ let currentRotation = 0;
 const rotationSpeed = 0.1; // Ajustado para transiciones más suaves
 let rotating = false;
 
-// Configuración de movimiento vertical
-let targetVerticalPosition = 0; // Empezamos en la posición inicial (py)
-let currentVerticalPosition = 0;
-const verticalSpeed = 0.1; // Ajustado para una transición suave en el eje Y
-let movingVertically = false;
-
-// Manejo del teclado para rotar la cámara y moverla verticalmente
+// Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
-    if (rotating || movingVertically) return;
+    if (rotating) return;
 
     switch (event.key) {
         case 'ArrowRight':
@@ -56,14 +50,6 @@ window.addEventListener('keydown', (event) => {
         case 'ArrowLeft':
             targetRotation += Math.PI / 4;
             rotating = true;
-            break;
-        case 'ArrowUp':
-            targetVerticalPosition = 10; // Mover la cámara hacia la cara superior (py)
-            movingVertically = true;
-            break;
-        case 'ArrowDown':
-            targetVerticalPosition = -10; // Mover la cámara hacia la cara inferior (ny)
-            movingVertically = true;
             break;
     }
 });
@@ -128,18 +114,6 @@ function animate() {
         camera.position.x = Math.sin(currentRotation) * 20;
         camera.position.z = Math.cos(currentRotation) * 20;
         camera.lookAt(0, 0, 0);
-    }
-
-    // Suavizar el movimiento vertical de la cámara
-    if (movingVertically) {
-        currentVerticalPosition = THREE.MathUtils.lerp(currentVerticalPosition, targetVerticalPosition, verticalSpeed);
-
-        if (Math.abs(targetVerticalPosition - currentVerticalPosition) < 0.01) {
-            currentVerticalPosition = targetVerticalPosition;
-            movingVertically = false;
-        }
-
-        camera.position.y = currentVerticalPosition; // Mover la cámara en el eje Y
     }
 
     bubbles.forEach(bubble => {
