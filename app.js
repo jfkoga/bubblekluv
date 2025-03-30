@@ -35,7 +35,7 @@ scene.add(hemiLight);
 // Configuración de rotación
 let targetRotation = 0;
 let currentRotation = 0;
-const rotationSpeed = 0.05;
+const rotationSpeed = 0.1; // Ajustado para transiciones más suaves
 let rotating = false;
 
 // Manejo del teclado para rotar la cámara
@@ -104,13 +104,11 @@ function animate() {
 
     // Suavizar la rotación de la cámara
     if (rotating) {
-        const deltaRotation = (targetRotation - currentRotation) * rotationSpeed;
-        
-        if (Math.abs(deltaRotation) < 0.005) {
+        currentRotation = THREE.MathUtils.lerp(currentRotation, targetRotation, rotationSpeed);
+
+        if (Math.abs(targetRotation - currentRotation) < 0.002) {
             currentRotation = targetRotation;
             rotating = false;
-        } else {
-            currentRotation += deltaRotation;
         }
 
         camera.position.x = Math.sin(currentRotation) * 20;
