@@ -1,6 +1,6 @@
 import * as THREE from './libs/three.module.js';
 
-// Crear la escena, cámara y renderer bubblekluv
+// Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -35,97 +35,54 @@ scene.add(hemiLight);
 // Configuración de rotación con inercia
 let targetRotation = 0; // Ángulo de rotación objetivo
 let currentRotation = 0; // Ángulo de rotación actual
-let rotationVelocity = 0;
-const rotationSpeed = 0.1; // Mayor velocidad de rotación
-const dampingFactor = 0.9; // Factor de amortiguación
+let rotationVelocity = 0; // Velocidad de rotación acumulada
+const rotationSpeed = 0.005; // Velocidad de rotación controlable
+const dampingFactor = 0.95; // Factor de amortiguación para suavizar el movimiento
+
+// Indicadores de teclas presionadas
+let isRightPressed = false;
+let isLeftPressed = false;
 
 // Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
-    switch (event.key) {
-        case 'ArrowRight':
-            targetRotation -= Math.PI / 2; // Rotación hacia la derecha
-            break;
-        case 'ArrowLeft':
-            targetRotation += Math.PI / 2; // Rotación hacia la izquierda
-            break;
+    if (event.key === 'ArrowRight') {
+        isRightPressed = true;
+    } else if (event.key === 'ArrowLeft') {
+        isLeftPressed = true;
     }
 });
 
-// Crear burbujas
-const numBubbles = 150;
-const bubbles = [];
-const bubbleSize = 1;
-
-for (let i = 0; i < numBubbles; i++) {
-    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
-    
-    const material = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        roughness: 0.1,
-        transmission: 1,
-        thickness: 0.5,
-        reflectivity: 1,
-        clearcoat: 1,
-        clearcoatRoughness: 0,
-        transparent: true,
-        opacity: 0.7
-    });
-
-    const bubble = new THREE.Mesh(geometry, material);
-
-    bubble.position.set(
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30,
-        (Math.random() - 0.5) * 30
-    );
-
-    bubble.userData = {
-        movement: new THREE.Vector3(
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02,
-            (Math.random() - 0.5) * 0.02
-        ),
-        rotationSpeed: new THREE.Vector3(
-            Math.random() * 0.01,
-            Math.random() * 0.01,
-            Math.random() * 0.01
-        )
-    };
-
-    bubbles.push(bubble);
-    scene.add(bubble);
-}
+window.addEventListener('keyup', (event) => {
+    if (event.key === 'ArrowRight') {
+        isRightPressed = false;
+    } else if (event.key === 'ArrowLeft') {
+        isLeftPressed = false;
+    }
+});
 
 function animate() {
     requestAnimationFrame(animate);
 
-    // Suavizar la rotación de la cámara con inercia
-    if (Math.abs(targetRotation - currentRotation) > 0.001) {
-        rotationVelocity = (targetRotation - currentRotation) * dampingFactor; // Hacer que la cámara se mueva hacia el objetivo
-        currentRotation += rotationVelocity;
-
-        if (Math.abs(rotationVelocity) < 0.0005) {
-            rotationVelocity = 0; // Detener la rotación cuando se haya alcanzado el objetivo
-            currentRotation = targetRotation;
-        }
-
-        // Actualizar la posición de la cámara en función de la rotación
-        camera.position.x = Math.sin(currentRotation) * 20;
-        camera.position.z = Math.cos(currentRotation) * 20;
-        camera.lookAt(0, 0, 0);
+    // Controlar la rotación cuando se mantiene presionada una tecla
+    if (isRightPressed) {
+        rotationVelocity -= rotationSpeed; // Desplazamiento hacia la derecha
+    } 
+    if (isLeftPressed) {
+        rotationVelocity += rotationSpeed; // Desplazamiento hacia la izquierda
     }
 
-    bubbles.forEach(bubble => {
-        bubble.position.add(bubble.userData.movement);
-        bubble.rotation.x += bubble.userData.rotationSpeed.x;
-        bubble.rotation.y += bubble.userData.rotationSpeed.y;
-        bubble.rotation.z += bubble.userData.rotationSpeed.z;
+    // Aplicar amortiguación para suavizar la rotación
+    rotationVelocity *= dampingFactor;
 
-        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
-    });
+    // Aplicar la rotación de la cámara
+    currentRotation += rotationVelocity;
 
+    // Actualizar la posición de la cámara en función de la rotación
+    camera.position.x = Math.sin(currentRotation) * 20;
+    camera.position.z = Math.cos(currentRotation) * 20;
+    camera.lookAt(0, 0, 0);
+
+    // Renderizar la escena
     renderer.render(scene, camera);
 }
 
