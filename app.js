@@ -1,6 +1,6 @@
 import * as THREE from './libs/three.module.js';
 
-// Crear la escena, cámara y renderer bubblekluv
+// Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -39,7 +39,7 @@ const rotationSpeed = 0.1; // Ajustado para transiciones más suaves
 let rotating = false;
 
 // Configuración de movimiento vertical
-let targetVerticalPosition = 0;
+let targetVerticalPosition = 0; // Empezamos en la posición inicial (py)
 let currentVerticalPosition = 0;
 const verticalSpeed = 0.1; // Ajustado para una transición suave en el eje Y
 let movingVertically = false;
@@ -58,11 +58,11 @@ window.addEventListener('keydown', (event) => {
             rotating = true;
             break;
         case 'ArrowUp':
-            targetVerticalPosition = 10; // Mover la cámara hacia arriba
+            targetVerticalPosition = 10; // Mover la cámara hacia la cara superior (py)
             movingVertically = true;
             break;
         case 'ArrowDown':
-            targetVerticalPosition = 0; // Volver al punto inicial
+            targetVerticalPosition = -10; // Mover la cámara hacia la cara inferior (ny)
             movingVertically = true;
             break;
     }
