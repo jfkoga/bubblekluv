@@ -33,22 +33,20 @@ hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
 // Configuración de rotación con inercia
-let targetRotation = 0;
-let currentRotation = 0;
+let targetRotation = 0; // Ángulo de rotación objetivo
+let currentRotation = 0; // Ángulo de rotación actual
 let rotationVelocity = 0;
-const rotationSpeed = 0.02; // Velocidad reducida para transiciones más fluidas
+const rotationSpeed = 0.1; // Mayor velocidad de rotación
 const dampingFactor = 0.9; // Factor de amortiguación
 
 // Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
     switch (event.key) {
         case 'ArrowRight':
-            rotationVelocity = -rotationSpeed;
-            targetRotation -= Math.PI / 4;
+            targetRotation -= Math.PI / 2; // Rotación hacia la derecha
             break;
         case 'ArrowLeft':
-            rotationVelocity = rotationSpeed;
-            targetRotation += Math.PI / 4;
+            targetRotation += Math.PI / 2; // Rotación hacia la izquierda
             break;
     }
 });
@@ -103,11 +101,11 @@ function animate() {
 
     // Suavizar la rotación de la cámara con inercia
     if (Math.abs(targetRotation - currentRotation) > 0.001) {
-        rotationVelocity *= dampingFactor; // Aplicar amortiguación
+        rotationVelocity = (targetRotation - currentRotation) * dampingFactor; // Hacer que la cámara se mueva hacia el objetivo
         currentRotation += rotationVelocity;
 
         if (Math.abs(rotationVelocity) < 0.0005) {
-            rotationVelocity = 0; // Detener completamente cuando es muy pequeño
+            rotationVelocity = 0; // Detener la rotación cuando se haya alcanzado el objetivo
             currentRotation = targetRotation;
         }
 
