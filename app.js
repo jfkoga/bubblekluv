@@ -111,6 +111,7 @@ function animate() {
             currentRotation = targetRotation;
         }
 
+        // Actualizar la posición de la cámara en función de la rotación
         camera.position.x = Math.sin(currentRotation) * 20;
         camera.position.z = Math.cos(currentRotation) * 20;
         camera.lookAt(0, 0, 0);
