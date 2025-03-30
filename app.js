@@ -32,38 +32,23 @@ const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Configuración de rotación
+// Configuración de rotación con inercia
 let targetRotation = 0;
 let currentRotation = 0;
-const rotationSpeed = 0.1; // Ajustado para transiciones más suaves
-let rotating = false;
+let rotationVelocity = 0;
+const rotationSpeed = 0.02; // Velocidad reducida para transiciones más fluidas
+const dampingFactor = 0.9; // Factor de amortiguación
 
-// Variable para el movimiento vertical de la cámara
-let targetVerticalPosition = 0;
-let currentVerticalPosition = 0;
-const verticalSpeed = 0.1; // Velocidad del movimiento vertical
-let movingVertically = false;
-
-// Manejo del teclado para rotar la cámara y moverla verticalmente
+// Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
-    if (rotating || movingVertically) return;
-
     switch (event.key) {
         case 'ArrowRight':
+            rotationVelocity = -rotationSpeed;
             targetRotation -= Math.PI / 4;
-            rotating = true;
             break;
         case 'ArrowLeft':
+            rotationVelocity = rotationSpeed;
             targetRotation += Math.PI / 4;
-            rotating = true;
-            break;
-        case 'ArrowUp':
-            targetVerticalPosition = 10; // Mover la cámara hacia arriba
-            movingVertically = true;
-            break;
-        case 'ArrowDown':
-            targetVerticalPosition = 0; // Volver al punto inicial
-            movingVertically = true;
             break;
     }
 });
@@ -116,30 +101,19 @@ for (let i = 0; i < numBubbles; i++) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Suavizar la rotación de la cámara
-    if (rotating) {
-        currentRotation = THREE.MathUtils.lerp(currentRotation, targetRotation, rotationSpeed);
+    // Suavizar la rotación de la cámara con inercia
+    if (Math.abs(targetRotation - currentRotation) > 0.001) {
+        rotationVelocity *= dampingFactor; // Aplicar amortiguación
+        currentRotation += rotationVelocity;
 
-        if (Math.abs(targetRotation - currentRotation) < 0.002) {
+        if (Math.abs(rotationVelocity) < 0.0005) {
+            rotationVelocity = 0; // Detener completamente cuando es muy pequeño
             currentRotation = targetRotation;
-            rotating = false;
         }
 
         camera.position.x = Math.sin(currentRotation) * 20;
         camera.position.z = Math.cos(currentRotation) * 20;
         camera.lookAt(0, 0, 0);
-    }
-
-    // Suavizar el movimiento vertical de la cámara
-    if (movingVertically) {
-        currentVerticalPosition = THREE.MathUtils.lerp(currentVerticalPosition, targetVerticalPosition, verticalSpeed);
-
-        if (Math.abs(targetVerticalPosition - currentVerticalPosition) < 0.01) {
-            currentVerticalPosition = targetVerticalPosition;
-            movingVertically = false;
-        }
-
-        camera.position.y = currentVerticalPosition;
     }
 
     bubbles.forEach(bubble => {
