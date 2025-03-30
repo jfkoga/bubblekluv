@@ -32,6 +32,40 @@ const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
+// Crear burbujas
+const bubbles = [];
+const bubbleGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+const bubbleMaterial = new THREE.MeshStandardMaterial({
+    color: 0x66ccff,
+    transparent: true,
+    opacity: 0.6,
+    emissive: 0x66ccff,
+    emissiveIntensity: 0.4
+});
+
+for (let i = 0; i < 20; i++) {
+    const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+    bubble.position.set(
+        (Math.random() - 0.5) * 10,
+        Math.random() * 5,
+        (Math.random() - 0.5) * 10
+    );
+    scene.add(bubble);
+    bubbles.push(bubble);
+}
+
+// Animar burbujas
+function animateBubbles() {
+    bubbles.forEach(bubble => {
+        bubble.position.y += 0.02;
+        if (bubble.position.y > 5) {
+            bubble.position.y = -2;
+            bubble.position.x = (Math.random() - 0.5) * 10;
+            bubble.position.z = (Math.random() - 0.5) * 10;
+        }
+    });
+}
+
 // Variables de rotación
 let targetRotation = 0;
 let currentRotation = 0;
@@ -53,31 +87,10 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
-// Detección del mouse sobre la puerta en nx.png
-window.addEventListener('mousemove', (event) => {
-    const mouse = {
-        x: (event.clientX / window.innerWidth) * 2 - 1,
-        y: -(event.clientY / window.innerHeight) * 2 + 1
-    };
-    
-    // Definir coordenadas aproximadas de la puerta en nx.png (ajustar según sea necesario)
-    const doorBounds = {
-        xMin: -0.2, xMax: 0.2, // Posiciones X normalizadas de la puerta
-        yMin: -0.5, yMax: 0 // Posiciones Y normalizadas de la puerta
-    };
-
-    if (mouse.x > doorBounds.xMin && mouse.x < doorBounds.xMax && 
-        mouse.y > doorBounds.yMin && mouse.y < doorBounds.yMax) {
-        document.body.style.cursor = 'pointer'; // Cambiar cursor al pasar por la puerta
-    } else {
-        document.body.style.cursor = 'default';
-    }
-});
-
 // Animación
 function animate() {
     requestAnimationFrame(animate);
-
+    
     if (rotating) {
         currentRotation += (targetRotation - currentRotation) * rotationSpeed;
         if (Math.abs(targetRotation - currentRotation) < 0.01) {
@@ -89,6 +102,7 @@ function animate() {
         camera.lookAt(0, 0, 0);
     }
 
+    animateBubbles();
     renderer.render(scene, camera);
 }
 
