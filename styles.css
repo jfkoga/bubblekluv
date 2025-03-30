@@ -35,16 +35,6 @@ canvas {
     pointer-events: none; /* Permite que los clics pasen a través de esta capa */
 }
 
-#logo-overlay {
-    position: absolute;
-    top: 50%;  /* Posiciona el centro verticalmente */
-    left: 50%; /* Posiciona el centro horizontalmente */
-    transform: translate(-50%, -50%); /* Ajusta el logotipo para que esté perfectamente centrado */
-    z-index: 1000; /* Asegura que esté por encima del canvas de WebGL */
-    pointer-events: none; /* Permite que los eventos del ratón pasen al canvas debajo */
-    width: auto; /* Mantén el tamaño original del logo */
-    height: auto;
-}
 
 .audio-player {
     position: fixed;
