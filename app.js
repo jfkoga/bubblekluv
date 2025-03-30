@@ -60,6 +60,51 @@ window.addEventListener('keyup', (event) => {
     }
 });
 
+// Crear burbujas
+const numBubbles = 150;
+const bubbles = [];
+const bubbleSize = 1;
+
+for (let i = 0; i < numBubbles; i++) {
+    const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+    
+    const material = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        roughness: 0.1,
+        transmission: 1,
+        thickness: 0.5,
+        reflectivity: 1,
+        clearcoat: 1,
+        clearcoatRoughness: 0,
+        transparent: true,
+        opacity: 0.7
+    });
+
+    const bubble = new THREE.Mesh(geometry, material);
+
+    bubble.position.set(
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30,
+        (Math.random() - 0.5) * 30
+    );
+
+    bubble.userData = {
+        movement: new THREE.Vector3(
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02,
+            (Math.random() - 0.5) * 0.02
+        ),
+        rotationSpeed: new THREE.Vector3(
+            Math.random() * 0.01,
+            Math.random() * 0.01,
+            Math.random() * 0.01
+        )
+    };
+
+    bubbles.push(bubble);
+    scene.add(bubble);
+}
+
 function animate() {
     requestAnimationFrame(animate);
 
@@ -82,7 +127,18 @@ function animate() {
     camera.position.z = Math.cos(currentRotation) * 20;
     camera.lookAt(0, 0, 0);
 
-    // Renderizar la escena
+    // Mover las burbujas
+    bubbles.forEach(bubble => {
+        bubble.position.add(bubble.userData.movement);
+        bubble.rotation.x += bubble.userData.rotationSpeed.x;
+        bubble.rotation.y += bubble.userData.rotationSpeed.y;
+        bubble.rotation.z += bubble.userData.rotationSpeed.z;
+
+        if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+        if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+        if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
+    });
+
     renderer.render(scene, camera);
 }
 
