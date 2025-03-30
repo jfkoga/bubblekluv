@@ -38,10 +38,10 @@ let currentRotation = 0;
 const rotationSpeed = 0.1; // Ajustado para transiciones más suaves
 let rotating = false;
 
-// Variable para el movimiento vertical de la cámara
+// Configuración de movimiento vertical
 let targetVerticalPosition = 0;
 let currentVerticalPosition = 0;
-const verticalSpeed = 0.1; // Velocidad del movimiento vertical
+const verticalSpeed = 0.1; // Ajustado para una transición suave en el eje Y
 let movingVertically = false;
 
 // Manejo del teclado para rotar la cámara y moverla verticalmente
