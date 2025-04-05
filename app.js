@@ -60,14 +60,6 @@ window.addEventListener('keyup', (event) => {
     }
 });
 
-// Direcciones cardinales principales
-const dirs = {
-    px: new THREE.Vector3(1, 0, 0),
-    nx: new THREE.Vector3(-1, 0, 0),
-    pz: new THREE.Vector3(0, 0, 1),
-    nz: new THREE.Vector3(0, 0, -1)
-};
-
 // Crear burbujas
 const numBubbles = 150;
 const bubbles = [];
@@ -151,10 +143,18 @@ function animate() {
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
 
-    // Verificar si está cerca de mirar hacia un eje cardinal
+    // Direcciones cardinales para los skyboxes
+    const dirs = {
+        px: new THREE.Vector3(1, 0, 0),  // derecha
+        nx: new THREE.Vector3(-1, 0, 0), // izquierda
+        pz: new THREE.Vector3(0, 0, 1),  // frente
+        nz: new THREE.Vector3(0, 0, -1)  // atrás
+    };
+
     let showArrow = false;
     const threshold = 0.98; // cuánto debe alinearse (1 = exacto)
 
+    // Verificar si la cámara está mirando a una de las direcciones cardinales
     for (const key in dirs) {
         if (dir.dot(dirs[key]) > threshold) {
             showArrow = true;
@@ -162,10 +162,8 @@ function animate() {
         }
     }
 
-    const arrowElement = document.getElementById('nav-arrow');
-    if (arrowElement) {
-        arrowElement.style.display = showArrow ? 'block' : 'none';
-    }
+    // Mostrar o esconder la flecha según la condición
+    document.getElementById('nav-arrow').style.display = showArrow ? 'block' : 'none';
 
     renderer.render(scene, camera);
 }
