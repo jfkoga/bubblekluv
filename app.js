@@ -60,6 +60,14 @@ window.addEventListener('keyup', (event) => {
     }
 });
 
+// Direcciones cardinales principales
+const dirs = {
+    px: new THREE.Vector3(1, 0, 0),
+    nx: new THREE.Vector3(-1, 0, 0),
+    pz: new THREE.Vector3(0, 0, 1),
+    nz: new THREE.Vector3(0, 0, -1)
+};
+
 // Crear burbujas
 const numBubbles = 150;
 const bubbles = [];
@@ -139,37 +147,25 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
+    // Calcular dirección de la cámara
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
 
+    // Verificar si está cerca de mirar hacia un eje cardinal
+    let showArrow = false;
+    const threshold = 0.98; // cuánto debe alinearse (1 = exacto)
 
-
-
-
-// Calcular dirección de la cámara
-const dir = new THREE.Vector3();
-camera.getWorldDirection(dir);
-
-// Verificar si está cerca de mirar hacia un eje cardinal
-let showArrow = false;
-const threshold = 0.98; // cuánto debe alinearse (1 = exacto)
-
-for (const key in dirs) {
-    if (dir.dot(dirs[key]) > threshold) {
-        showArrow = true;
-        break;
+    for (const key in dirs) {
+        if (dir.dot(dirs[key]) > threshold) {
+            showArrow = true;
+            break;
+        }
     }
-}
 
-document.getElementById('nav-arrow').style.display = showArrow ? 'block' : 'none';
-
-
-
-
-
-
-
-
-
-
+    const arrowElement = document.getElementById('nav-arrow');
+    if (arrowElement) {
+        arrowElement.style.display = showArrow ? 'block' : 'none';
+    }
 
     renderer.render(scene, camera);
 }
