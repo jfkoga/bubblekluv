@@ -11,6 +11,7 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+
 }
 
 canvas {
@@ -21,6 +22,8 @@ canvas {
     height: 100%;
     z-index: 1;
 }
+
+
 
 .audio-player {
     position: fixed;
@@ -48,16 +51,7 @@ canvas {
     background-color: #ddd;
 }
 
-/* 🔽 Flecha de navegación tipo Street View */
-#nav-arrow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 60px;
-    color: white;
-    display: none;
-    pointer-events: none;
-    user-select: none;
-    z-index: 10;
-}
+
+
+
+
