@@ -1,25 +1,26 @@
 import * as THREE from './libs/three.module.js';
 
-// Crear la escena, cámara y renderer
+// Crear la escena, cámara y renderer bubbles
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Skybox
+// Crear el cubemap para el skybox (FIJO, sin movimiento)
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
-    'textures/skybox/bblklv-clubentrance-01/px.png',
-    'textures/skybox/bblklv-clubentrance-01/nx.png',
-    'textures/skybox/bblklv-clubentrance-01/py.png',
-    'textures/skybox/bblklv-clubentrance-01/ny.png',
-    'textures/skybox/bblklv-clubentrance-01/pz.png',
-    'textures/skybox/bblklv-clubentrance-01/nz.png'
+    'textures/skybox/bblklv-clubentrance-01/px.png', // derecha
+    'textures/skybox/bblklv-clubentrance-01/nx.png', // izquierda
+    'textures/skybox/bblklv-clubentrance-01/py.png', // arriba
+    'textures/skybox/bblklv-clubentrance-01/ny.png', // abajo
+    'textures/skybox/bblklv-clubentrance-01/pz.png', // frente
+    'textures/skybox/bblklv-clubentrance-01/nz.png'  // atrás
 ]);
+
 scene.background = textureCube;
 
-// Luces
+// Crear luces con más intensidad
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
@@ -31,22 +32,32 @@ const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Variables de rotación
-let currentRotation = 0;
-let rotationVelocity = 0;
-const rotationSpeed = 0.005;
-const dampingFactor = 0.95;
+// Configuración de rotación con inercia
+let targetRotation = 0; // Ángulo de rotación objetivo
+let currentRotation = 0; // Ángulo de rotación actual
+let rotationVelocity = 0; // Velocidad de rotación acumulada
+const rotationSpeed = 0.005; // Velocidad de rotación controlable
+const dampingFactor = 0.95; // Factor de amortiguación para suavizar el movimiento
+
+// Indicadores de teclas presionadas
 let isRightPressed = false;
 let isLeftPressed = false;
 
+// Manejo del teclado para rotar la cámara
 window.addEventListener('keydown', (event) => {
-    if (event.key === 'ArrowRight') isRightPressed = true;
-    if (event.key === 'ArrowLeft') isLeftPressed = true;
+    if (event.key === 'ArrowRight') {
+        isRightPressed = true;
+    } else if (event.key === 'ArrowLeft') {
+        isLeftPressed = true;
+    }
 });
 
 window.addEventListener('keyup', (event) => {
-    if (event.key === 'ArrowRight') isRightPressed = false;
-    if (event.key === 'ArrowLeft') isLeftPressed = false;
+    if (event.key === 'ArrowRight') {
+        isRightPressed = false;
+    } else if (event.key === 'ArrowLeft') {
+        isLeftPressed = false;
+    }
 });
 
 // Crear burbujas
@@ -56,6 +67,7 @@ const bubbleSize = 1;
 
 for (let i = 0; i < numBubbles; i++) {
     const geometry = new THREE.SphereGeometry(bubbleSize, 32, 32);
+    
     const material = new THREE.MeshPhysicalMaterial({
         color: 0xffffff,
         roughness: 0.1,
@@ -93,44 +105,37 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
-// Flecha de navegación (HTML)
-const arrowElement = document.createElement('img');
-arrowElement.src = 'arrow.png';
-arrowElement.id = 'nav-arrow';
-arrowElement.style.position = 'fixed';
-arrowElement.style.top = '50%';
-arrowElement.style.left = '50%';
-arrowElement.style.transform = 'translate(-50%, -50%)';
-arrowElement.style.width = '64px';
-arrowElement.style.height = '64px';
-arrowElement.style.zIndex = '1000';
-arrowElement.style.display = 'none';
-document.body.appendChild(arrowElement);
-
-// Direcciones cardinales (unitarios)
+// Definir las direcciones cardinales
 const dirs = {
-    px: new THREE.Vector3(1, 0, 0),   // derecha
-    nx: new THREE.Vector3(-1, 0, 0),  // izquierda
-    pz: new THREE.Vector3(0, 0, 1),   // frente
-    nz: new THREE.Vector3(0, 0, -1)   // atrás
+    front: new THREE.Vector3(0, 0, 1),
+    back: new THREE.Vector3(0, 0, -1),
+    right: new THREE.Vector3(1, 0, 0),
+    left: new THREE.Vector3(-1, 0, 0),
 };
-
-const threshold = 0.95;
 
 function animate() {
     requestAnimationFrame(animate);
 
-    // Rotación con inercia
-    if (isRightPressed) rotationVelocity -= rotationSpeed;
-    if (isLeftPressed) rotationVelocity += rotationSpeed;
+    // Controlar la rotación cuando se mantiene presionada una tecla
+    if (isRightPressed) {
+        rotationVelocity -= rotationSpeed; // Desplazamiento hacia la derecha
+    } 
+    if (isLeftPressed) {
+        rotationVelocity += rotationSpeed; // Desplazamiento hacia la izquierda
+    }
+
+    // Aplicar amortiguación para suavizar la rotación
     rotationVelocity *= dampingFactor;
+
+    // Aplicar la rotación de la cámara
     currentRotation += rotationVelocity;
 
+    // Actualizar la posición de la cámara en función de la rotación
     camera.position.x = Math.sin(currentRotation) * 20;
     camera.position.z = Math.cos(currentRotation) * 20;
     camera.lookAt(0, 0, 0);
 
-    // Mover burbujas
+    // Mover las burbujas
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.userData.movement);
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
@@ -142,30 +147,44 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
-    // Obtener dirección actual de la cámara
+    // Calcular dirección de la cámara
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
 
-    // Mostrar la flecha si la cámara mira hacia una cara cardinal
+    // Verificar si está cerca de mirar hacia un eje cardinal
     let showArrow = false;
-    for (const key in dirs) {
-        const alignment = dir.dot(dirs[key]);
-        if (alignment > threshold) {
-            showArrow = true;
+    const threshold = 0.98; // cuánto debe alinearse (1 = exacto)
 
-            // Ajustar rotación para centrar mejor cuando está muy alineado
-            if (alignment > 0.98) {
-                const angleStep = Math.PI / 2; // 90 grados
-                currentRotation = Math.round(currentRotation / angleStep) * angleStep;
-                camera.position.x = Math.sin(currentRotation) * 20;
-                camera.position.z = Math.cos(currentRotation) * 20;
-                camera.lookAt(0, 0, 0);
-            }
-
-            break;
-        }
+    let alignment = dir.dot(dirs.front);
+    if (alignment > threshold) {
+        showArrow = true;
     }
-    arrowElement.style.display = showArrow ? 'block' : 'none';
+
+    alignment = dir.dot(dirs.back);
+    if (alignment > threshold) {
+        showArrow = true;
+    }
+
+    alignment = dir.dot(dirs.right);
+    if (alignment > threshold) {
+        showArrow = true;
+    }
+
+    alignment = dir.dot(dirs.left);
+    if (alignment > threshold) {
+        showArrow = true;
+    }
+
+    document.getElementById('nav-arrow').style.display = showArrow ? 'block' : 'none';
+
+    // Ajustar rotación para que encaje en los planos del skybox si no se está moviendo
+    if (!isLeftPressed && !isRightPressed && showArrow) {
+        const angleStep = Math.PI / 2; // 90 grados
+        currentRotation = Math.round(currentRotation / angleStep) * angleStep;
+        camera.position.x = Math.sin(currentRotation) * 20;
+        camera.position.z = Math.cos(currentRotation) * 20;
+        camera.lookAt(0, 0, 0);
+    }
 
     renderer.render(scene, camera);
 }
