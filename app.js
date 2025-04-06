@@ -137,7 +137,7 @@ function animate() {
     // Si la flecha está visible, hacer el ajuste suave de la rotación hacia la dirección de la flecha
     if (showArrow) {
         // Ajustar la rotación gradual sin que se mueva de forma abrupta
-        currentRotation += (targetRotationAdjustment - currentRotation) * 0.05;
+        currentRotation += (targetRotationAdjustment - currentRotation) * 0.1;
     }
 
     // Actualizar la posición de la cámara
