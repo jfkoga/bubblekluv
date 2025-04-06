@@ -1,13 +1,13 @@
 import * as THREE from './libs/three.module.js';
 
-// Crear escena, cámara y renderer
+// Crear la escena, cámara y renderer
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Cargar skybox
+// Skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
     'textures/skybox/bblklv-clubentrance-01/px.png',
@@ -31,8 +31,7 @@ const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Movimiento de cámara con inercia
-let targetRotation = 0;
+// Variables de rotación
 let currentRotation = 0;
 let rotationVelocity = 0;
 const rotationSpeed = 0.005;
@@ -44,6 +43,7 @@ window.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowRight') isRightPressed = true;
     if (event.key === 'ArrowLeft') isLeftPressed = true;
 });
+
 window.addEventListener('keyup', (event) => {
     if (event.key === 'ArrowRight') isRightPressed = false;
     if (event.key === 'ArrowLeft') isLeftPressed = false;
@@ -69,6 +69,7 @@ for (let i = 0; i < numBubbles; i++) {
     });
 
     const bubble = new THREE.Mesh(geometry, material);
+
     bubble.position.set(
         (Math.random() - 0.5) * 30,
         (Math.random() - 0.5) * 30,
@@ -92,29 +93,44 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
-// Flecha de navegación
+// Flecha de navegación (HTML)
+const arrowElement = document.createElement('img');
+arrowElement.src = 'arrow.png';
+arrowElement.id = 'nav-arrow';
+arrowElement.style.position = 'fixed';
+arrowElement.style.top = '50%';
+arrowElement.style.left = '50%';
+arrowElement.style.transform = 'translate(-50%, -50%)';
+arrowElement.style.width = '64px';
+arrowElement.style.height = '64px';
+arrowElement.style.zIndex = '1000';
+arrowElement.style.display = 'none';
+document.body.appendChild(arrowElement);
+
+// Direcciones cardinales (unitarios)
 const dirs = {
-    front: new THREE.Vector3(0, 0, -1), // pz
-    back: new THREE.Vector3(0, 0, 1),   // nz
-    right: new THREE.Vector3(1, 0, 0),  // px
-    left: new THREE.Vector3(-1, 0, 0)   // nx
+    px: new THREE.Vector3(1, 0, 0),   // derecha
+    nx: new THREE.Vector3(-1, 0, 0),  // izquierda
+    pz: new THREE.Vector3(0, 0, 1),   // frente
+    nz: new THREE.Vector3(0, 0, -1)   // atrás
 };
+
 const threshold = 0.95;
-const arrowElement = document.getElementById('nav-arrow');
 
 function animate() {
     requestAnimationFrame(animate);
 
+    // Rotación con inercia
     if (isRightPressed) rotationVelocity -= rotationSpeed;
     if (isLeftPressed) rotationVelocity += rotationSpeed;
     rotationVelocity *= dampingFactor;
-
     currentRotation += rotationVelocity;
+
     camera.position.x = Math.sin(currentRotation) * 20;
     camera.position.z = Math.cos(currentRotation) * 20;
     camera.lookAt(0, 0, 0);
 
-    // Animación de burbujas
+    // Mover burbujas
     bubbles.forEach(bubble => {
         bubble.position.add(bubble.userData.movement);
         bubble.rotation.x += bubble.userData.rotationSpeed.x;
@@ -126,13 +142,26 @@ function animate() {
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
 
-    // Mostrar flecha si cámara mira hacia dirección válida
+    // Obtener dirección actual de la cámara
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
+
+    // Mostrar la flecha si la cámara mira hacia una cara cardinal
     let showArrow = false;
     for (const key in dirs) {
-        if (dir.dot(dirs[key]) > threshold) {
+        const alignment = dir.dot(dirs[key]);
+        if (alignment > threshold) {
             showArrow = true;
+
+            // Ajustar rotación para centrar mejor cuando está muy alineado
+            if (alignment > 0.98) {
+                const angleStep = Math.PI / 2; // 90 grados
+                currentRotation = Math.round(currentRotation / angleStep) * angleStep;
+                camera.position.x = Math.sin(currentRotation) * 20;
+                camera.position.z = Math.cos(currentRotation) * 20;
+                camera.lookAt(0, 0, 0);
+            }
+
             break;
         }
     }
@@ -142,4 +171,3 @@ function animate() {
 }
 
 animate();
-
