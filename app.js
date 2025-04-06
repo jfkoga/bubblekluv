@@ -105,18 +105,6 @@ for (let i = 0; i < numBubbles; i++) {
     scene.add(bubble);
 }
 
-// Definir las direcciones cardinales
-const dirs = {
-    front: new THREE.Vector3(0, 0, 1),
-    back: new THREE.Vector3(0, 0, -1),
-    right: new THREE.Vector3(1, 0, 0),
-    left: new THREE.Vector3(-1, 0, 0),
-};
-
-let showArrow = false; // Variable para controlar la visualización de la flecha
-let targetRotationAdjustment = 0; // Variable para ajuste gradual de la rotación
-let lastKnownRotation = 0; // Variable para almacenar la última rotación conocida
-
 function animate() {
     requestAnimationFrame(animate);
 
@@ -131,16 +119,10 @@ function animate() {
     // Aplicar amortiguación para suavizar la rotación
     rotationVelocity *= dampingFactor;
 
-    // Actualizar la posición de la cámara en función de la rotación
+    // Aplicar la rotación de la cámara
     currentRotation += rotationVelocity;
 
-    // Si la flecha está visible, hacer el ajuste suave de la rotación hacia la dirección de la flecha
-    if (showArrow) {
-        // Ajustar la rotación gradual sin que se mueva de forma abrupta
-        currentRotation += (targetRotationAdjustment - currentRotation) * 0.1;
-    }
-
-    // Actualizar la posición de la cámara
+    // Actualizar la posición de la cámara en función de la rotación
     camera.position.x = Math.sin(currentRotation) * 20;
     camera.position.z = Math.cos(currentRotation) * 20;
     camera.lookAt(0, 0, 0);
@@ -156,43 +138,6 @@ function animate() {
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
-
-    // Calcular dirección de la cámara
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-
-    // Verificar si está cerca de mirar hacia un eje cardinal
-    const threshold = 0.98; // Cuánto debe alinearse (1 = exacto)
-    let alignment = dir.dot(dirs.right);
-    if (alignment > threshold) {
-        showArrow = true;
-        targetRotationAdjustment = Math.PI / 2; // 90 grados a la derecha
-    }
-
-    alignment = dir.dot(dirs.left);
-    if (alignment > threshold) {
-        showArrow = true;
-        targetRotationAdjustment = -Math.PI / 2; // 90 grados a la izquierda
-    }
-
-    alignment = dir.dot(dirs.front);
-    if (alignment > threshold) {
-        showArrow = true;
-        targetRotationAdjustment = 0; // Mirando al frente
-    }
-
-    alignment = dir.dot(dirs.back);
-    if (alignment > threshold) {
-        showArrow = true;
-        targetRotationAdjustment = Math.PI; // Mirando atrás
-    }
-
-    // Mostrar la flecha solo cuando sea necesario
-    document.getElementById('nav-arrow').style.display = showArrow ? 'block' : 'none';
-
-    // Posicionar la flecha en el centro de la pantalla
-    document.getElementById('nav-arrow').style.left = '50%'; // Centrar en el eje X
-    document.getElementById('nav-arrow').style.top = '50%';  // Centrar en el eje Y
 
     renderer.render(scene, camera);
 }
