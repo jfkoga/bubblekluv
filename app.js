@@ -115,6 +115,7 @@ const dirs = {
 
 let showArrow = false; // Variable para controlar la visualización de la flecha
 let targetRotationAdjustment = 0; // Variable para ajuste gradual de la rotación
+let lastKnownRotation = 0; // Variable para almacenar la última rotación conocida
 
 function animate() {
     requestAnimationFrame(animate);
@@ -135,7 +136,7 @@ function animate() {
 
     // Si la flecha está visible, hacer el ajuste suave de la rotación hacia la dirección de la flecha
     if (showArrow) {
-        // Ajustar la rotación gradual
+        // Ajustar la rotación gradual sin que se mueva de forma abrupta
         currentRotation += (targetRotationAdjustment - currentRotation) * 0.05;
     }
 
