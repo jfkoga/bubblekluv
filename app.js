@@ -1,6 +1,6 @@
 import * as THREE from './libs/three.module.js';
 
-// Crear la escena, cámara y renderer
+// Crear la escena, cámara y renderer bubbles
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -138,32 +138,6 @@ function animate() {
         if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
         if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
     });
-
-    // Calcular dirección de la cámara
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-
-    // Direcciones cardinales para los skyboxes
-    const dirs = {
-        px: new THREE.Vector3(1, 0, 0),  // derecha
-        nx: new THREE.Vector3(-1, 0, 0), // izquierda
-        pz: new THREE.Vector3(0, 0, 1),  // frente
-        nz: new THREE.Vector3(0, 0, -1)  // atrás
-    };
-
-    let showArrow = false;
-    const threshold = 0.98; // cuánto debe alinearse (1 = exacto)
-
-    // Verificar si la cámara está mirando a una de las direcciones cardinales
-    for (const key in dirs) {
-        if (dir.dot(dirs[key]) > threshold) {
-            showArrow = true;
-            break;
-        }
-    }
-
-    // Mostrar o esconder la flecha según la condición
-    document.getElementById('nav-arrow').style.display = showArrow ? 'block' : 'none';
 
     renderer.render(scene, camera);
 }
