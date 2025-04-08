@@ -22,5 +22,20 @@
   </div>
 
   <script type="module" src="app.js"></script>
+  <script>
+    // Función para reproducir y pausar desde el HUD
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.textContent = '⏸'; // Pause icon
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = '▶'; // Play icon
+      }
+    });
+  </script>
 </body>
 </html>

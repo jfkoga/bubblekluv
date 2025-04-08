@@ -35,27 +35,27 @@ body {
   /* HUD Audio Player */
   .hud-audio-player {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
+    bottom: 40px;
+    right: 40px;
     z-index: 9999;
   }
   
   .hud-frame {
-    background: rgba(0, 255, 255, 0.1);
-    border: 2px solid rgba(0, 255, 255, 0.5);
-    border-radius: 12px;
-    padding: 20px;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
-    width: 320px;
+    background: rgba(0, 255, 255, 0.12);
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 16px;
+    padding: 30px 40px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+    width: 400px;
   }
   
   .hud-title {
-    font-size: 16px;
+    font-size: 20px;
     text-align: center;
     color: #0ff;
-    margin-bottom: 12px;
-    text-shadow: 0 0 5px #0ff;
+    margin-bottom: 20px;
+    text-shadow: 0 0 6px #0ff;
   }
   
   .hud-controls {
@@ -66,13 +66,13 @@ body {
   
   .hud-button {
     background-color: rgba(0, 255, 255, 0.2);
-    border: 1px solid #0ff;
+    border: 2px solid #0ff;
     color: #0ff;
-    padding: 10px 20px;
-    font-size: 18px;
-    border-radius: 8px;
+    padding: 15px 30px;
+    font-size: 22px;
+    border-radius: 10px;
     cursor: pointer;
-    text-shadow: 0 0 5px #0ff;
+    text-shadow: 0 0 6px #0ff;
     transition: background 0.3s ease;
   }
   
