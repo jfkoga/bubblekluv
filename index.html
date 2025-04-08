@@ -8,34 +8,20 @@
 </head>
 <body>
   <div id="bubbles-container"></div>
-  <div id="overlay"></div>
+  <img id="nav-arrow" src="arrow.png" alt="Navigation Arrow" />
 
-  <!-- Futuristic HUD Audio Player -->
-  <div class="hud-audio-player">
-    <div class="hud-frame">
+  <!-- HUD Futurista -->
+  <div class="hud">
+    <div class="hud-border">
       <div class="hud-title">Now Playing: bubblekluv - wait for me</div>
       <div class="hud-controls">
         <button id="playPauseBtn" class="hud-button">▶</button>
       </div>
-      <audio id="audio" src="bubblekluv-waitforme.mp3"></audio>
     </div>
   </div>
 
-  <script type="module" src="app.js"></script>
-  <script>
-    // Función para reproducir y pausar desde el HUD
-    const audio = document.getElementById('audio');
-    const playPauseBtn = document.getElementById('playPauseBtn');
+  <audio id="audio" src="bubblekluv-waitforme.mp3"></audio>
 
-    playPauseBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-        playPauseBtn.textContent = '⏸'; // Pause icon
-      } else {
-        audio.pause();
-        playPauseBtn.textContent = '▶'; // Play icon
-      }
-    });
-  </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
