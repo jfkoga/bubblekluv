@@ -5,46 +5,48 @@
     z-index: 9999;
     font-family: 'Orbitron', sans-serif;
     color: #00fff0;
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #00fff0;
-    border-radius: 12px;
-    padding: 20px;
-    width: 320px;
-    box-shadow: 0 0 15px #00fff0;
+    background: rgba(0, 0, 0, 0.65);
+    border: 3px solid #00fff0;
+    border-radius: 16px;
+    padding: 28px;
+    width: 420px;
+    box-shadow: 0 0 20px #00fff0, 0 0 40px #00fdfd80;
   }
   
   .hud-title {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
     text-align: center;
+    text-shadow: 0 0 5px #00fff0;
   }
   
   .hud-track-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
   }
   
   .hud-track-name {
-    font-size: 16px;
+    font-size: 20px;
     flex: 1;
-    padding-right: 10px;
-    text-shadow: 0 0 3px #00fff0;
+    padding-right: 15px;
+    text-shadow: 0 0 4px #00fff0;
   }
   
   .hud-controls .hud-btn {
     background: #00fff0;
     color: #000;
-    font-size: 18px;
+    font-size: 22px;
     border: none;
-    border-radius: 6px;
-    width: 40px;
-    height: 40px;
+    border-radius: 8px;
+    width: 48px;
+    height: 48px;
     cursor: pointer;
     transition: background 0.2s;
+    box-shadow: 0 0 10px #00fff0;
   }
   
   .hud-controls .hud-btn:hover {
@@ -53,19 +55,20 @@
   
   .hud-visualizer {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     justify-content: center;
     align-items: end;
-    height: 30px;
-    margin-top: 10px;
+    height: 40px;
+    margin-top: 15px;
   }
   
   .hud-visualizer .bar {
-    width: 6px;
+    width: 8px;
     height: 100%;
     background: #00fff0;
-    animation: equalizer 1s infinite ease-in-out;
-    opacity: 0.6;
+    animation: equalizer 1.2s infinite ease-in-out;
+    opacity: 0.7;
+    border-radius: 3px;
   }
   
   .hud-visualizer .bar:nth-child(1) { animation-delay: 0s; }
