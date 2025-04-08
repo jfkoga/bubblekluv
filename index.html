@@ -5,48 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bubbles Effect</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div id="bubbles-container"></div>
-  <img id="nav-arrow" src="arrow.png" alt="Navigation Arrow" />
   <div id="overlay"></div>
 
-  <!-- HUD Futurista de Música -->
-  <div id="hud-audio-player">
+  <!-- Futuristic HUD Audio Player -->
+  <div class="hud-audio-player">
     <div class="hud-frame">
-      <div class="hud-title">NOW PLAYING</div>
-      <div class="hud-track-info">
-        <div class="hud-track-name">bubblekluv – wait for me</div>
-        <div class="hud-controls">
-          <button class="hud-btn" id="playPauseBtn">▶</button>
-        </div>
+      <div class="hud-title">Now Playing: bubblekluv - wait for me</div>
+      <div class="hud-controls">
+        <button id="playPauseBtn" class="hud-button">▶</button>
       </div>
-      <div class="hud-visualizer">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-      </div>
+      <audio id="audio" src="bubblekluv-waitforme.mp3"></audio>
     </div>
-    <audio id="audio" src="bubblekluv-waitforme.mp3"></audio>
   </div>
 
   <script type="module" src="app.js"></script>
-  <script>
-    const playPauseBtn = document.getElementById("playPauseBtn");
-    const audio = document.getElementById("audio");
-
-    playPauseBtn.addEventListener("click", () => {
-      if (audio.paused) {
-        audio.play();
-        playPauseBtn.textContent = "⏸";
-      } else {
-        audio.pause();
-        playPauseBtn.textContent = "▶";
-      }
-    });
-  </script>
 </body>
 </html>
