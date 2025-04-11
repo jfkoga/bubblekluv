@@ -85,26 +85,6 @@ for (let i = 0; i < numBubbles; i++) {
   scene.add(bubble);
 }
 
-// Pantalla flotante con video
-const video = document.createElement('video');
-video.src = 'media/musicvideo.mp4';
-video.crossOrigin = 'anonymous';
-video.loop = true;
-video.muted = true;
-video.playsInline = true;
-video.play();
-
-const videoTexture = new THREE.VideoTexture(video);
-videoTexture.minFilter = THREE.LinearFilter;
-videoTexture.magFilter = THREE.LinearFilter;
-videoTexture.format = THREE.RGBAFormat;
-
-const screenGeometry = new THREE.PlaneGeometry(8, 4.8);
-const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-const screen = new THREE.Mesh(screenGeometry, screenMaterial);
-screen.position.set(0, 0, -8);
-scene.add(screen);
-
 // HUD Audio player
 const playPauseBtn = document.getElementById('playPauseBtn');
 const audio = document.getElementById('audio');
@@ -122,7 +102,6 @@ playPauseBtn.addEventListener('click', () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  // Movimiento de cámara
   if (isRightPressed) rotationVelocity -= rotationSpeed;
   if (isLeftPressed) rotationVelocity += rotationSpeed;
   rotationVelocity *= dampingFactor;
@@ -132,7 +111,6 @@ function animate() {
   camera.position.z = Math.cos(currentRotation) * 20;
   camera.lookAt(0, 0, 0);
 
-  // Burbujas en movimiento
   bubbles.forEach(bubble => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
