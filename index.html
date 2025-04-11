@@ -1,33 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>3D Bubbles + Video HUD</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Burbujas Futuristas</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div id="bubbles-container">
-    <canvas></canvas>
+    <!-- Canvas 3D se inyecta aquí por app.js -->
 
-    <!-- Video HUD centrado -->
+    <!-- Video centrado -->
     <div id="video-wrapper">
-      <video id="videoPlayer" src="media/musicvideo.mp4" autoplay loop muted playsinline></video>
+      <iframe
+        id="videoPlayer"
+        src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&mute=1&controls=0&loop=1&playlist=VIDEO_ID"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+      ></iframe>
     </div>
 
-    <!-- HUD Futurista -->
+    <!-- HUD de control de audio -->
     <div class="hud">
       <div class="hud-border">
-        <div class="hud-title">Futuristic HUD</div>
+        <div class="hud-title">Now Playing</div>
         <div class="hud-controls">
-          <button id="playPauseBtn" class="hud-button">Play</button>
+          <button class="hud-button" id="playPauseBtn">Play</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Audio -->
-  <audio id="audio" src="media/musicvideo.mp3"></audio>
+    <audio id="audio" src="media/music.mp3" loop></audio>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>

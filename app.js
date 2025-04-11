@@ -88,6 +88,7 @@ for (let i = 0; i < numBubbles; i++) {
 // HUD Audio player
 const playPauseBtn = document.getElementById('playPauseBtn');
 const audio = document.getElementById('audio');
+
 playPauseBtn.addEventListener('click', () => {
   if (audio.paused) {
     audio.play();
@@ -102,6 +103,7 @@ playPauseBtn.addEventListener('click', () => {
 function animate() {
   requestAnimationFrame(animate);
 
+  // Movimiento de cámara
   if (isRightPressed) rotationVelocity -= rotationSpeed;
   if (isLeftPressed) rotationVelocity += rotationSpeed;
   rotationVelocity *= dampingFactor;
@@ -111,6 +113,7 @@ function animate() {
   camera.position.z = Math.cos(currentRotation) * 20;
   camera.lookAt(0, 0, 0);
 
+  // Burbujas en movimiento
   bubbles.forEach(bubble => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
