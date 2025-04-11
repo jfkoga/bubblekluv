@@ -99,7 +99,7 @@ videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 videoTexture.format = THREE.RGBAFormat;
 
-const screenGeometry = new THREE.PlaneGeometry(5, 3);
+const screenGeometry = new THREE.PlaneGeometry(8, 4.8);
 const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
 const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
