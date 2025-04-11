@@ -89,15 +89,26 @@ for (let i = 0; i < numBubbles; i++) {
 const playPauseBtn = document.getElementById('playPauseBtn');
 const audio = document.getElementById('audio');
 
-playPauseBtn.addEventListener('click', () => {
-  if (audio.paused) {
-    audio.play();
-    playPauseBtn.textContent = 'Pause';
-  } else {
-    audio.pause();
-    playPauseBtn.textContent = 'Play';
+// Asegura que el audio pueda reproducirse con interacción
+audio.volume = 1;
+
+playPauseBtn.addEventListener('click', async () => {
+  try {
+    if (audio.paused) {
+      await audio.play();
+      playPauseBtn.textContent = 'Pause';
+    } else {
+      audio.pause();
+      playPauseBtn.textContent = 'Play';
+    }
+  } catch (err) {
+    console.error("Error al reproducir el audio:", err);
+    alert("El navegador ha bloqueado el audio. Haz clic de nuevo o verifica permisos de sonido.");
   }
 });
+
+
+
 
 // Animación principal
 function animate() {
