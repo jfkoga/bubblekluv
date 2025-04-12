@@ -7,27 +7,29 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="bubbles-container"></div>
-
-  <!-- Video centrado -->
-  <div id="video-wrapper">
-    <iframe
-      id="videoPlayer"
-      src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-    ></iframe>
-  </div>
-
-  <!-- HUD Audio Player -->
-  <div class="hud">
-    <div class="hud-border">
-      <div class="hud-title">Neon Audio HUD</div>
-      <div class="hud-controls">
-        <button id="playPauseBtn" class="hud-button">Play</button>
-        <audio id="audio" src="media/music.mp3"></audio>
+  <div id="bubbles-container">
+    
+    <!-- Video centrado dentro del canvas -->
+    <div id="video-wrapper">
+      <iframe
+        id="videoPlayer"
+        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+      ></iframe>
+    </div>
+    
+    <!-- HUD Audio Player -->
+    <div class="hud">
+      <div class="hud-border">
+        <div class="hud-title">Neon Audio HUD</div>
+        <div class="hud-controls">
+          <button id="playPauseBtn" class="hud-button">Play</button>
+          <audio id="audio" src="media/music.mp3"></audio>
+        </div>
       </div>
     </div>
+
   </div>
 
   <script type="module" src="app.js"></script>
