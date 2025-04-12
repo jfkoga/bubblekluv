@@ -4,6 +4,7 @@ body {
   background-color: #000;
   color: #fff;
   font-family: Arial, sans-serif;
+  overflow: hidden;
 }
 
 #bubbles-container {
@@ -13,7 +14,7 @@ body {
   overflow: hidden;
 }
 
-/* Three.js Canvas */
+/* Canvas de Three.js */
 canvas {
   position: absolute;
   top: 0;
@@ -23,23 +24,27 @@ canvas {
   z-index: 1;
 }
 
-/* Cuadro de YouTube centrado sobre el canvas */
-#video-wrapper {
+/* Cuadro de video YouTube centrado en pantalla */
+#video-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -40%); /* Puedes ajustar el -40% si quieres bajarlo más */
   width: 560px;
   height: 315px;
+  transform: translate(-50%, -40%); /* baja el video */
   z-index: 2;
   pointer-events: auto;
+  box-shadow: 0 0 20px #0ff;
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-#videoPlayer {
+#video-overlay iframe {
   width: 100%;
   height: 100%;
   border: none;
-  border-radius: 16px;
+  display: block;
+  background: transparent;
 }
 
 /* HUD Futurista */
