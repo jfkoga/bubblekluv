@@ -3,34 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Burbujas Futuristas</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Experiencia 3D Interactiva</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="bubbles-container">
-    <!-- Canvas 3D se inyecta aquí por app.js -->
+  <div id="bubbles-container"></div>
 
-    <!-- Video centrado -->
-    <div id="video-wrapper">
+  <!-- Video enmarcado en smartphone -->
+  <div id="video-wrapper">
+    <svg id="smartphone-frame" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="200" height="400" rx="30" ry="30" fill="#111" stroke="#0ff" stroke-width="4"/>
+      <circle cx="100" cy="20" r="4" fill="#0ff" />
+      <rect x="80" y="35" width="40" height="6" rx="3" ry="3" fill="#0ff" />
+    </svg>
+    <div id="video-inside-phone">
       <iframe
-      id="videoPlayer"
-      src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-    ></iframe>
+        id="videoPlayer"
+        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+      ></iframe>
     </div>
+  </div>
 
-    <!-- HUD de control de audio -->
-    <div class="hud">
-      <div class="hud-border">
-        <div class="hud-title">Now Playing</div>
-        <div class="hud-controls">
-          <button class="hud-button" id="playPauseBtn">Play</button>
-        </div>
+  <!-- HUD Audio Player -->
+  <div class="hud">
+    <div class="hud-border">
+      <div class="hud-title">Neon Audio HUD</div>
+      <div class="hud-controls">
+        <button id="playPauseBtn" class="hud-button">Play</button>
+        <audio id="audio" src="media/music.mp3"></audio>
       </div>
     </div>
-
-    <audio id="audio" src="media/music.mp3" loop></audio>
   </div>
 
   <script type="module" src="app.js"></script>
