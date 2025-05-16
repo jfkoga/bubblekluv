@@ -23,8 +23,10 @@ scene.background = textureCube;
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
+
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
+
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
@@ -85,7 +87,7 @@ for (let i = 0; i < numBubbles; i++) {
   scene.add(bubble);
 }
 
-// Pantalla flotante con video (reproduce un video local)
+// Pantalla flotante con video
 const video = document.createElement('video');
 video.src = 'media/musicvideo.mp4';
 video.crossOrigin = 'anonymous';
@@ -104,19 +106,6 @@ const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
 const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
 scene.add(screen);
-
-// HUD Audio player
-const playPauseBtn = document.getElementById('playPauseBtn');
-const audio = document.getElementById('audio');
-playPauseBtn.addEventListener('click', () => {
-  if (audio.paused) {
-    audio.play();
-    playPauseBtn.textContent = 'Pause';
-  } else {
-    audio.pause();
-    playPauseBtn.textContent = 'Play';
-  }
-});
 
 // Animación principal
 function animate() {
