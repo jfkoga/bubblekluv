@@ -34,17 +34,16 @@ canvas {
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  display: none;
 }
 
-.hud-border {
+/* .hud-border {
   border: 2px solid #0ff;
   padding: 25px 35px;
   border-radius: 12px;
   box-shadow: 0 0 20px #0ff, 0 0 40px #0ff inset;
   background-color: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(5px);
-}
+} */
 
 .hud-title {
   font-size: 32px;
