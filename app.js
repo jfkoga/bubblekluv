@@ -1,4 +1,5 @@
 import * as THREE from './libs/three.module.js';
+import { FBXLoader } from './libs/FBXLoader.js'; // 👈 nuevo import
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -23,10 +24,8 @@ scene.background = textureCube;
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
-
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
-
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
@@ -86,6 +85,19 @@ for (let i = 0; i < numBubbles; i++) {
   bubbles.push(bubble);
   scene.add(bubble);
 }
+
+// Cargar modelo de manos
+let hands;
+const fbxLoader = new FBXLoader();
+fbxLoader.load('models/hands.fbx', (object) => {
+  hands = object;
+  hands.scale.set(0.01, 0.01, 0.01); // ajusta según el tamaño real
+  hands.position.set(0, -1, -2);     // posición frente a la cámara
+  camera.add(hands);                // manos hijas de la cámara
+  scene.add(camera);                // asegúrate que cámara esté en la escena
+}, undefined, (error) => {
+  console.error('Error cargando las manos:', error);
+});
 
 // Animación principal
 function animate() {
