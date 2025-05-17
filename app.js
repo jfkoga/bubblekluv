@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import { FBXLoader } from './libs/FBXLoader.js'; // 👈 nuevo import
+import { FBXLoader } from './libs/FBXLoader.js';
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -8,7 +8,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Fondo skybox
+// Skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/px.png',
@@ -24,8 +24,10 @@ scene.background = textureCube;
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
+
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
+
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
@@ -47,7 +49,7 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'ArrowLeft') isLeftPressed = false;
 });
 
-// Crear burbujas
+// Burbujas
 const numBubbles = 150;
 const bubbles = [];
 
@@ -86,17 +88,39 @@ for (let i = 0; i < numBubbles; i++) {
   scene.add(bubble);
 }
 
-// Cargar modelo de manos
-let hands;
+// Video en pantalla flotante
+const video = document.createElement('video');
+video.src = 'media/musicvideo.mp4';
+video.crossOrigin = 'anonymous';
+video.loop = true;
+video.muted = true;
+video.playsInline = true;
+video.play();
+
+const videoTexture = new THREE.VideoTexture(video);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+videoTexture.format = THREE.RGBAFormat;
+
+const screenGeometry = new THREE.PlaneGeometry(5, 3);
+const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+screen.position.set(0, 0, -8);
+scene.add(screen);
+
+// 📦 Cargar modelo de manos en primera persona
 const fbxLoader = new FBXLoader();
-fbxLoader.load('models/hands.fbx', (object) => {
-  hands = object;
-  hands.scale.set(0.01, 0.01, 0.01); // ajusta según el tamaño real
-  hands.position.set(0, -1, -2);     // posición frente a la cámara
-  camera.add(hands);                // manos hijas de la cámara
-  scene.add(camera);                // asegúrate que cámara esté en la escena
+fbxLoader.load('models/hands/hands.fbx', (fbx) => {
+  // Escalar y posicionar
+  fbx.scale.set(0.01, 0.01, 0.01); // Ajusta según sea necesario
+  fbx.position.set(0, -1, -2);     // Centrado delante de la cámara
+  fbx.rotation.y = Math.PI;        // Mirando hacia adelante
+
+  // Añadir a la cámara para que las manos se muevan con ella
+  camera.add(fbx);
+  scene.add(camera); // Asegúrate de añadir la cámara si no lo has hecho
 }, undefined, (error) => {
-  console.error('Error cargando las manos:', error);
+  console.error('Error al cargar FBX:', error);
 });
 
 // Animación principal
