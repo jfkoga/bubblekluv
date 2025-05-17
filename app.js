@@ -1,5 +1,5 @@
 import * as THREE from './libs/three.module.js';
-import { FBXLoader } from './libs/FBXLoader.js';
+import { GLTFLoader } from './libs/GLTFLoader.js';
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
@@ -8,7 +8,7 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Fondo skybox
+// Skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/px.png',
@@ -24,12 +24,15 @@ scene.background = textureCube;
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
-scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+scene.add(ambientLight);
+
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Movimiento de cámara
+// Variables de rotación de cámara
 let currentRotation = 0;
 let rotationVelocity = 0;
 const rotationSpeed = 0.005;
@@ -46,7 +49,7 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'ArrowLeft') isLeftPressed = false;
 });
 
-// Burbujas
+// Crear burbujas
 const numBubbles = 150;
 const bubbles = [];
 
@@ -85,46 +88,25 @@ for (let i = 0; i < numBubbles; i++) {
   scene.add(bubble);
 }
 
-// Pantalla con video
-const video = document.createElement('video');
-video.src = 'media/musicvideo.mp4';
-video.crossOrigin = 'anonymous';
-video.loop = true;
-video.muted = true;
-video.playsInline = true;
-video.play();
+// 🖐️ Cargar modelo de manos
+const gltfLoader = new GLTFLoader();
+let hands;
 
-const videoTexture = new THREE.VideoTexture(video);
-videoTexture.minFilter = THREE.LinearFilter;
-videoTexture.magFilter = THREE.LinearFilter;
-videoTexture.format = THREE.RGBAFormat;
-
-const screenGeometry = new THREE.PlaneGeometry(5, 3);
-const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
-const screen = new THREE.Mesh(screenGeometry, screenMaterial);
-screen.position.set(0, 0, -8);
-scene.add(screen);
-
-// 🚀 Cargar modelo de manos
-const fbxLoader = new FBXLoader();
-let hands = null;
-
-fbxLoader.load('models/hands/hands.fbx', (object) => {
-  hands = object;
-  hands.scale.set(0.01, 0.01, 0.01); // Ajusta el tamaño si es necesario
-  hands.position.set(0, -1, -2); // Frente a la cámara
-  hands.rotation.y = Math.PI; // Mirando hacia el frente
+gltfLoader.load('models/hands/hands.glb', (gltf) => {
+  hands = gltf.scene;
+  hands.scale.set(1, 1, 1);
+  hands.position.set(0, -2, -5); // Frente a la cámara
   camera.add(hands);
-  scene.add(camera);
+  scene.add(camera); // importante: añadir cámara a la escena solo después de añadir las manos
 }, undefined, (error) => {
-  console.error('Error cargando modelo FBX:', error);
+  console.error('Error al cargar modelo GLB:', error);
 });
 
 // Animación
 function animate() {
   requestAnimationFrame(animate);
 
-  // Movimiento cámara
+  // Movimiento de cámara
   if (isRightPressed) rotationVelocity -= rotationSpeed;
   if (isLeftPressed) rotationVelocity += rotationSpeed;
   rotationVelocity *= dampingFactor;
