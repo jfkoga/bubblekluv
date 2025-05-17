@@ -1,14 +1,10 @@
 import * as THREE from './libs/three.module.js';
+import { FBXLoader } from './libs/FBXLoader.js';
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
@@ -20,7 +16,7 @@ const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/py.png',
   'textures/skybox/bblklv-clubentrance-01/ny.png',
   'textures/skybox/bblklv-clubentrance-01/pz.png',
-  'textures/skybox/bblklv-clubentrance-01/nz.png',
+  'textures/skybox/bblklv-clubentrance-01/nz.png'
 ]);
 scene.background = textureCube;
 
@@ -28,15 +24,12 @@ scene.background = textureCube;
 const light = new THREE.DirectionalLight(0xffffff, 6);
 light.position.set(0, 2, 2).normalize();
 scene.add(light);
-
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
-scene.add(ambientLight);
-
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 hemiLight.position.set(0, 5, 0);
 scene.add(hemiLight);
 
-// Variables de rotación de cámara
+// Movimiento de cámara
 let currentRotation = 0;
 let rotationVelocity = 0;
 const rotationSpeed = 0.005;
@@ -53,7 +46,7 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'ArrowLeft') isLeftPressed = false;
 });
 
-// Crear burbujas
+// Burbujas
 const numBubbles = 150;
 const bubbles = [];
 
@@ -68,7 +61,7 @@ for (let i = 0; i < numBubbles; i++) {
     clearcoat: 1,
     clearcoatRoughness: 0,
     transparent: true,
-    opacity: 0.7,
+    opacity: 0.7
   });
   const bubble = new THREE.Mesh(geometry, material);
   bubble.position.set(
@@ -86,13 +79,13 @@ for (let i = 0; i < numBubbles; i++) {
       Math.random() * 0.01,
       Math.random() * 0.01,
       Math.random() * 0.01
-    ),
+    )
   };
   bubbles.push(bubble);
   scene.add(bubble);
 }
 
-// Pantalla flotante con video
+// Pantalla con video
 const video = document.createElement('video');
 video.src = 'media/musicvideo.mp4';
 video.crossOrigin = 'anonymous';
@@ -112,11 +105,26 @@ const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
 scene.add(screen);
 
-// Animación principal
+// 🚀 Cargar modelo de manos
+const fbxLoader = new FBXLoader();
+let hands = null;
+
+fbxLoader.load('models/hands/hands.fbx', (object) => {
+  hands = object;
+  hands.scale.set(0.01, 0.01, 0.01); // Ajusta el tamaño si es necesario
+  hands.position.set(0, -1, -2); // Frente a la cámara
+  hands.rotation.y = Math.PI; // Mirando hacia el frente
+  camera.add(hands);
+  scene.add(camera);
+}, undefined, (error) => {
+  console.error('Error cargando modelo FBX:', error);
+});
+
+// Animación
 function animate() {
   requestAnimationFrame(animate);
 
-  // Movimiento de cámara
+  // Movimiento cámara
   if (isRightPressed) rotationVelocity -= rotationSpeed;
   if (isLeftPressed) rotationVelocity += rotationSpeed;
   rotationVelocity *= dampingFactor;
@@ -126,19 +134,16 @@ function animate() {
   camera.position.z = Math.cos(currentRotation) * 20;
   camera.lookAt(0, 0, 0);
 
-  // Movimiento de burbujas
-  bubbles.forEach((bubble) => {
+  // Movimiento burbujas
+  bubbles.forEach(bubble => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
     bubble.rotation.y += bubble.userData.rotationSpeed.y;
     bubble.rotation.z += bubble.userData.rotationSpeed.z;
 
-    if (bubble.position.x > 15 || bubble.position.x < -15)
-      bubble.userData.movement.x *= -1;
-    if (bubble.position.y > 15 || bubble.position.y < -15)
-      bubble.userData.movement.y *= -1;
-    if (bubble.position.z > 15 || bubble.position.z < -15)
-      bubble.userData.movement.z *= -1;
+    if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+    if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+    if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
   });
 
   renderer.render(scene, camera);
