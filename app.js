@@ -1,14 +1,18 @@
 import * as THREE from './libs/three.module.js';
-import { FBXLoader } from './libs/FBXLoader.js';
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ alpha: true });
+const camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Skybox
+// Fondo skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/px.png',
@@ -16,7 +20,7 @@ const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/py.png',
   'textures/skybox/bblklv-clubentrance-01/ny.png',
   'textures/skybox/bblklv-clubentrance-01/pz.png',
-  'textures/skybox/bblklv-clubentrance-01/nz.png'
+  'textures/skybox/bblklv-clubentrance-01/nz.png',
 ]);
 scene.background = textureCube;
 
@@ -49,7 +53,7 @@ window.addEventListener('keyup', (event) => {
   if (event.key === 'ArrowLeft') isLeftPressed = false;
 });
 
-// Burbujas
+// Crear burbujas
 const numBubbles = 150;
 const bubbles = [];
 
@@ -64,7 +68,7 @@ for (let i = 0; i < numBubbles; i++) {
     clearcoat: 1,
     clearcoatRoughness: 0,
     transparent: true,
-    opacity: 0.7
+    opacity: 0.7,
   });
   const bubble = new THREE.Mesh(geometry, material);
   bubble.position.set(
@@ -82,13 +86,13 @@ for (let i = 0; i < numBubbles; i++) {
       Math.random() * 0.01,
       Math.random() * 0.01,
       Math.random() * 0.01
-    )
+    ),
   };
   bubbles.push(bubble);
   scene.add(bubble);
 }
 
-// Video en pantalla flotante
+// Pantalla flotante con video
 const video = document.createElement('video');
 video.src = 'media/musicvideo.mp4';
 video.crossOrigin = 'anonymous';
@@ -108,21 +112,6 @@ const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
 scene.add(screen);
 
-// 📦 Cargar modelo de manos en primera persona
-const fbxLoader = new FBXLoader();
-fbxLoader.load('models/hands/hands.fbx', (fbx) => {
-  // Escalar y posicionar
-  fbx.scale.set(0.01, 0.01, 0.01); // Ajusta según sea necesario
-  fbx.position.set(0, -1, -2);     // Centrado delante de la cámara
-  fbx.rotation.y = Math.PI;        // Mirando hacia adelante
-
-  // Añadir a la cámara para que las manos se muevan con ella
-  camera.add(fbx);
-  scene.add(camera); // Asegúrate de añadir la cámara si no lo has hecho
-}, undefined, (error) => {
-  console.error('Error al cargar FBX:', error);
-});
-
 // Animación principal
 function animate() {
   requestAnimationFrame(animate);
@@ -138,15 +127,18 @@ function animate() {
   camera.lookAt(0, 0, 0);
 
   // Movimiento de burbujas
-  bubbles.forEach(bubble => {
+  bubbles.forEach((bubble) => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
     bubble.rotation.y += bubble.userData.rotationSpeed.y;
     bubble.rotation.z += bubble.userData.rotationSpeed.z;
 
-    if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
-    if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
-    if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
+    if (bubble.position.x > 15 || bubble.position.x < -15)
+      bubble.userData.movement.x *= -1;
+    if (bubble.position.y > 15 || bubble.position.y < -15)
+      bubble.userData.movement.y *= -1;
+    if (bubble.position.z > 15 || bubble.position.z < -15)
+      bubble.userData.movement.z *= -1;
   });
 
   renderer.render(scene, camera);
