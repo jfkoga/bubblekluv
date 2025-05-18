@@ -16,10 +16,6 @@ const renderer = new THREE.WebGLRenderer({ alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('bubbles-container').appendChild(renderer.domElement);
 
-// Controles de órbita (opcional)
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-
 // Skybox
 const loader = new THREE.CubeTextureLoader();
 const textureCube = loader.load([
@@ -28,14 +24,14 @@ const textureCube = loader.load([
   'textures/skybox/bblklv-clubentrance-01/py.png',
   'textures/skybox/bblklv-clubentrance-01/ny.png',
   'textures/skybox/bblklv-clubentrance-01/pz.png',
-  'textures/skybox/bblklv-clubentrance-01/nz.png'
+  'textures/skybox/bblklv-clubentrance-01/nz.png',
 ]);
 scene.background = textureCube;
 
 // Luces
-const directionalLight = new THREE.DirectionalLight(0xffffff, 6);
-directionalLight.position.set(0, 2, 2).normalize();
-scene.add(directionalLight);
+const light = new THREE.DirectionalLight(0xffffff, 6);
+light.position.set(0, 2, 2).normalize();
+scene.add(light);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
 scene.add(ambientLight);
@@ -76,7 +72,7 @@ for (let i = 0; i < numBubbles; i++) {
     clearcoat: 1,
     clearcoatRoughness: 0,
     transparent: true,
-    opacity: 0.7
+    opacity: 0.7,
   });
   const bubble = new THREE.Mesh(geometry, material);
   bubble.position.set(
@@ -94,30 +90,25 @@ for (let i = 0; i < numBubbles; i++) {
       Math.random() * 0.01,
       Math.random() * 0.01,
       Math.random() * 0.01
-    )
+    ),
   };
   bubbles.push(bubble);
   scene.add(bubble);
 }
 
-// Cargar modelo de manos
+// 🖐️ Cargar modelo de manos
 const gltfLoader = new GLTFLoader();
-let hands;
+let hands = null;
 
 gltfLoader.load(
   'models/hands/hands.glb',
   (gltf) => {
     hands = gltf.scene;
-    hands.scale.set(1, 1, 1);
-    hands.position.set(0, -2, -5); // Frente a la cámara
+    hands.scale.set(1.5, 1.5, 1.5);
+    hands.position.set(0, -1.5, -3); // frente a la cámara
+    hands.rotation.y = Math.PI; // opcional, depende del modelo
     camera.add(hands);
-
-    // Añadir una luz puntual desde la cámara
-    const pointLight = new THREE.PointLight(0xffffff, 3);
-    pointLight.position.set(0, 0, 1);
-    camera.add(pointLight);
-
-    scene.add(camera); // Añadir la cámara a la escena después de agregar las manos y la luz
+    scene.add(camera); // asegurarse de añadir la cámara después
   },
   undefined,
   (error) => {
@@ -154,7 +145,6 @@ function animate() {
       bubble.userData.movement.z *= -1;
   });
 
-  controls.update(); // Actualizar controles de órbita
   renderer.render(scene, camera);
 }
 
