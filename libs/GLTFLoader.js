@@ -7,7 +7,7 @@ const {
 		Vector3,
 		Object3D
 	} = THREE;
-import { toTrianglesDrawMode } from './BufferGeometryUtils.js';
+import { toTrianglesDrawMode } from './libs/BufferGeometryUtils.js';
 
 /**
  * A loader for the glTF 2.0 format.
