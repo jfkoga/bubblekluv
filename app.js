@@ -1,6 +1,8 @@
 import * as THREE from './libs/three.module.js';
-import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
+import { GLTFLoader } from './libs/GLTFLoader.js';
+// Solo si usas BufferGeometryUtils:
+import * as BufferGeometryUtils from './libs/BufferGeometryUtils.js';
 
 // Escena, cámara y renderer
 const scene = new THREE.Scene();
