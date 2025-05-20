@@ -34,7 +34,6 @@ canvas {
   align-items: center;
   justify-content: center;
   pointer-events: auto;
-  display: none;
 }
 
 .hud-border {
