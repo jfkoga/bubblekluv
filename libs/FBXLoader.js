@@ -46,6 +46,8 @@ import {
 
 import * as fflate from './fflate.module.js';
 import { NURBSCurve } from './NURBSCurve.js';
+import * as THREE from './three.module.js';
+import { unzipSync } from './fflate.module.js';
 
 let fbxTree;
 let connections;
