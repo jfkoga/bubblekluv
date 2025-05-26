@@ -148,3 +148,88 @@ function animate() {
 }
 
 animate();
+
+
+
+
+
+
+const hudScene = new THREE.Scene();
+const hudCamera = new THREE.OrthographicCamera(
+  -window.innerWidth / 2,
+  window.innerWidth / 2,
+  window.innerHeight / 2,
+  -window.innerHeight / 2,
+  0,
+  10
+);
+
+// 2. Cargar sprite de la mano
+const hudLoader = new THREE.TextureLoader();
+const handTexture = hudLoader.load('sprites/arms.png'); // Reemplaza con tu imagen
+
+const handMaterial = new THREE.SpriteMaterial({
+  map: handTexture,
+  transparent: true
+});
+
+const handSprite = new THREE.Sprite(handMaterial);
+
+// Escala y posición
+handSprite.scale.set(300, 300, 1); // Ajusta según tamaño real del sprite
+handSprite.position.set(0, -window.innerHeight / 4, 1);
+
+hudScene.add(handSprite);
+
+// 3. Adaptar a cambios de tamaño de ventana
+window.addEventListener('resize', () => {
+  // Cámara principal
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  // Cámara HUD
+  hudCamera.left = -window.innerWidth / 2;
+  hudCamera.right = window.innerWidth / 2;
+  hudCamera.top = window.innerHeight / 2;
+  hudCamera.bottom = -window.innerHeight / 2;
+  hudCamera.updateProjectionMatrix();
+
+  // Reposicionar sprite
+  handSprite.position.set(0, -window.innerHeight / 4, 1);
+});
+
+// 4. Modificar la función animate para renderizar también el HUD
+function animate() {
+  requestAnimationFrame(animate);
+
+  // Movimiento de cámara
+  if (isRightPressed) rotationVelocity -= rotationSpeed;
+  if (isLeftPressed) rotationVelocity += rotationSpeed;
+  rotationVelocity *= dampingFactor;
+  currentRotation += rotationVelocity;
+
+  camera.position.x = Math.sin(currentRotation) * 20;
+  camera.position.z = Math.cos(currentRotation) * 20;
+  camera.lookAt(0, 0, 0);
+
+  // Movimiento de burbujas
+  bubbles.forEach(bubble => {
+    bubble.position.add(bubble.userData.movement);
+    bubble.rotation.x += bubble.userData.rotationSpeed.x;
+    bubble.rotation.y += bubble.userData.rotationSpeed.y;
+    bubble.rotation.z += bubble.userData.rotationSpeed.z;
+
+    if (bubble.position.x > 15 || bubble.position.x < -15) bubble.userData.movement.x *= -1;
+    if (bubble.position.y > 15 || bubble.position.y < -15) bubble.userData.movement.y *= -1;
+    if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
+  });
+
+  renderer.render(scene, camera);
+
+  // Render del HUD
+  renderer.clearDepth(); // Asegura que el HUD esté encima
+  renderer.render(hudScene, hudCamera);
+}
+
+animate();
