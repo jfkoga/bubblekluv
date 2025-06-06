@@ -82,7 +82,7 @@ canvas {
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  width: 200px; /* ajusta según el tamaño de tu imagen */
+  width: 30vw; /* ajusta según el tamaño de tu imagen */
   pointer-events: none;
   user-select: none;
 }
