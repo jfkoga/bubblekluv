@@ -118,12 +118,16 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-// === Mano tipo Doom integrada en escena 3D ===
+
+
+// === Mano tipo Doom renderizada sin iluminación (más integrada) ===
 const textureLoader = new THREE.TextureLoader();
 const handTexture = textureLoader.load('sprites/hand.png');
 const handMaterial = new THREE.SpriteMaterial({
   map: handTexture,
-  transparent: true
+  transparent: true,
+  opacity: 0.85,
+  color: new THREE.Color(0xbbbbbb) // tono gris suave para integrarse mejor
 });
 const handSprite = new THREE.Sprite(handMaterial);
 
@@ -134,6 +138,9 @@ handSprite.position.set(0, -1.2, -2);
 // Adjuntar la mano a la cámara
 camera.add(handSprite);
 scene.add(camera);
+
+
+
 
 // Ajustar en resize
 window.addEventListener('resize', () => {
