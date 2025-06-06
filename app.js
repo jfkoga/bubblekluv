@@ -85,7 +85,7 @@ for (let i = 0; i < numBubbles; i++) {
   scene.add(bubble);
 }
 
-// Pantalla flotante con video (reproduce un video local)
+// Pantalla flotante con video
 const video = document.createElement('video');
 video.src = 'media/musicvideo.mp4';
 video.crossOrigin = 'anonymous';
@@ -105,7 +105,7 @@ const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
 scene.add(screen);
 
-// HUD Audio player
+// Reproductor de audio HUD
 const playPauseBtn = document.getElementById('playPauseBtn');
 const audio = document.getElementById('audio');
 playPauseBtn.addEventListener('click', () => {
@@ -118,47 +118,28 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-// === HUD: Mano tipo Doom con sprite 2D ===
-
-// Escena y cámara para el HUD (superpuesta)
-const hudScene = new THREE.Scene();
-const hudCamera = new THREE.OrthographicCamera(
-  -window.innerWidth / 2,
-  window.innerWidth / 2,
-  window.innerHeight / 2,
-  -window.innerHeight / 2,
-  0,
-  10
-);
-
-// Cargar sprite de la mano
+// === Mano tipo Doom integrada en escena 3D ===
 const textureLoader = new THREE.TextureLoader();
-const handTexture = textureLoader.load('sprites/hand.png'); // Asegúrate de tener este archivo
+const handTexture = textureLoader.load('sprites/hand.png');
 const handMaterial = new THREE.SpriteMaterial({
   map: handTexture,
   transparent: true
 });
 const handSprite = new THREE.Sprite(handMaterial);
-handSprite.scale.set(300, 300, 1); // Tamaño del sprite
-handSprite.position.set(0, -window.innerHeight / 4, 1);
-hudScene.add(handSprite);
 
-// Actualizar HUD al redimensionar
+// Ajustar tamaño y posición
+handSprite.scale.set(2, 1.5, 1);
+handSprite.position.set(0, -1.2, -2);
+
+// Adjuntar la mano a la cámara
+camera.add(handSprite);
+scene.add(camera);
+
+// Ajustar en resize
 window.addEventListener('resize', () => {
-  // Ajuste del renderer
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
-  // HUD camera
-  hudCamera.left = -window.innerWidth / 2;
-  hudCamera.right = window.innerWidth / 2;
-  hudCamera.top = window.innerHeight / 2;
-  hudCamera.bottom = -window.innerHeight / 2;
-  hudCamera.updateProjectionMatrix();
-
-  // Sprite hand
-  handSprite.position.set(0, -window.innerHeight / 4, 1);
 });
 
 // Animación principal
@@ -187,14 +168,7 @@ function animate() {
     if (bubble.position.z > 15 || bubble.position.z < -15) bubble.userData.movement.z *= -1;
   });
 
-  // Render principal
   renderer.render(scene, camera);
-
-  // Render HUD (mano encima)
-  renderer.autoClear = false;
-  renderer.clearDepth();
-  renderer.render(hudScene, hudCamera);
-  renderer.autoClear = true;
 }
 
 animate();
