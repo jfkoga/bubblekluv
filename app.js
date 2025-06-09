@@ -120,22 +120,23 @@ playPauseBtn.addEventListener('click', () => {
 
 
 
-// === Mano tipo Doom renderizada sin iluminación (más integrada) ===
+// === Mano tipo Doom: sin transparencia, más grande y alineada al fondo de la pantalla ===
 const textureLoader = new THREE.TextureLoader();
 const handTexture = textureLoader.load('sprites/hand.png');
 const handMaterial = new THREE.SpriteMaterial({
   map: handTexture,
-  transparent: true,
-  opacity: 0.85,
-  color: new THREE.Color(0xbbbbbb) // tono gris suave para integrarse mejor
+  transparent: true, // necesario para mantener el canal alfa del PNG, pero no afecta opacidad si es opaco
+  opacity: 1.0
 });
 const handSprite = new THREE.Sprite(handMaterial);
 
 // Ajustar tamaño y posición
-handSprite.scale.set(2, 1.5, 1);
-handSprite.position.set(0, -1.2, -2);
+// Scale grande para que llene más y llegue abajo
+handSprite.scale.set(6, 4.5, 1); // Ajusta estos valores si tu imagen es más ancha o alta
+handSprite.center.set(0.5, 0);   // Alinea la parte inferior de la imagen con la posición Y
+handSprite.position.set(0, -1.5, -2.5); // Más abajo y más cerca de la cámara
 
-// Adjuntar la mano a la cámara
+// Adjuntar a la cámara
 camera.add(handSprite);
 scene.add(camera);
 
