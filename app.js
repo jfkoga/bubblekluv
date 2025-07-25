@@ -103,7 +103,7 @@ const screenGeometry = new THREE.PlaneGeometry(5, 3);
 const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
 const screen = new THREE.Mesh(screenGeometry, screenMaterial);
 screen.position.set(0, 0, -8);
-scene.add(screen);
+//scene.add(screen);
 
 // Reproductor de audio HUD
 const playPauseBtn = document.getElementById('playPauseBtn');
