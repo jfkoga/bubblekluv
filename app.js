@@ -47,7 +47,7 @@ window.addEventListener('keyup', (event) => {
 });
 
 // Crear burbujas
-const numBubbles = 150;
+const numBubbles = 50;
 const bubbles = [];
 
 for (let i = 0; i < numBubbles; i++) {
