@@ -5,10 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Experiencia 3D Interactiva</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .tv-wrapper {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 800px;
+      transform: translate(-50%, -50%);
+      pointer-events: none; /* opcional: hace que el video no bloquee interacciones 3D */
+    }
+
+    .tv-image {
+      width: 100%;
+      display: block;
+    }
+
+    .tv-video {
+      position: absolute;
+      top: 14.5%;
+      left: 13.5%;
+      width: 73%;
+      height: 57.5%;
+      border: none;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      pointer-events: auto; /* permite interactuar con el video */
+    }
+  </style>
 </head>
 <body>
   <div id="bubbles-container">
     <!-- Three.js render canvas estará aquí -->
+
+    <!-- Televisor con video de YouTube -->
+    <div class="tv-wrapper">
+      <img class="tv-image" src="https://upload.wikimedia.org/wikipedia/commons/6/6c/Tv_hd.png" alt="TV">
+      <iframe class="tv-video"
+        src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+        title="YouTube video"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <!-- HUD de audio -->
     <div class="hud">
       <div class="hud-border">
         <div class="hud-title">Neon Audio HUD</div>
@@ -19,6 +58,7 @@
       </div>
     </div>
   </div>
+
   <script type="module" src="app.js"></script>
 </body>
 </html>
