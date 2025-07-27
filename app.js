@@ -83,6 +83,45 @@ for (let i = 0; i < numBubbles; i++) {
   };
   bubbles.push(bubble);
   scene.add(bubble);
+
+// Crear textura de video
+const video = document.createElement('video');
+video.src = 'media/television.mp4'; // Asegúrate de tener este archivo en tu proyecto
+video.crossOrigin = 'anonymous';
+video.loop = true;
+video.muted = true;
+video.playsInline = true;
+video.autoplay = true;
+video.play();
+
+const videoTexture = new THREE.VideoTexture(video);
+videoTexture.minFilter = THREE.LinearFilter;
+videoTexture.magFilter = THREE.LinearFilter;
+videoTexture.format = THREE.RGBAFormat;
+
+// Crear plano con textura de video
+const screenGeometry = new THREE.PlaneGeometry(7.2, 4); // Ajusta dimensiones para encajar en la pantalla azul
+const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+
+// Posicionar el plano en la cara nx (izquierda)
+screen.position.set(-49.8, 0, 0); // Casi pegado al límite del cubemap
+screen.rotation.y = Math.PI / 2; // Rotar para que mire hacia el centro de la escena
+
+scene.add(screen);
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
