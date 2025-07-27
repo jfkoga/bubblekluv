@@ -24,7 +24,7 @@ canvas {
 }
 
 /* HUD Futurista */
-.hud {
+/*.hud {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -75,6 +75,7 @@ canvas {
 .hud-button:hover {
   background-color: rgba(0, 255, 255, 0.1);
 }
+*/
 
 /* Televisor al borde inferior */
 .tv-wrapper {
