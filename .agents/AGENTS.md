@@ -1,49 +1,55 @@
 # BUBBLEKLUV - AI Development Specifications & Guidelines
 
-Welcome to **BubbleKluv**, an interactive WebGL / Three.js 3D experience with real-time audio visualizers, glass physical refraction materials, 1st-person camera navigation, and neon glassmorphism UI.
+Welcome to **BubbleKluv**, an interactive 3D Multiverse Visual Album & WebGL experience built with Three.js, Web Audio API frequency analysis, Blockade Labs 360° AI cubemaps, 1st-person camera navigation, and neon glassmorphism UI.
 
 ---
 
-## 🎯 Architecture Overview
+## 🎯 Architectural Overview & Multiverse Specification
 
 This project follows a lightweight, dependency-free ES module architecture built on native Web Standards:
 
 - **Core Engine**: Three.js (`libs/three.module.js`) loaded natively via `<script type="importmap">`.
+- **Multiverse Engine**: Extensible track array (`tracksConfig`) linking each user song to a Blockade Labs 360° skybox environment, lighting palette, and 3D portal gateways.
 - **UI & HUD**: HTML5 Semantic Markup with CSS3 Glassmorphism (`styles.css`).
-- **Audio & Beat Analysis**: Web Audio API (`AudioContext`, `AnalyserNode`) and synthesized sound effects using `OscillatorNode`.
+- **Audio & Beat Analysis**: Web Audio API (`AudioContext`, `AnalyserNode`, `GainNode` crossfading) and synthesized sound effects using `OscillatorNode`.
 - **Camera System**: First-Person Shooter / Exploration Camera (Yaw & Pitch look, keyboard + mouse drag look).
 
 ---
 
-## 📐 Coding Standards & Guidelines
+## 📐 Multiverse Data Schema
 
-### 1. Three.js & WebGL Performance Rules
-- **Resource Disposal**: Always dispose geometries (`geometry.dispose()`) and materials (`material.dispose()`) when destroying meshes or particle systems to prevent VRAM memory leaks.
-- **Draw Call Optimization**: Keep draw calls under 100 per frame. Reuse geometries (`SphereGeometry`) and clone materials when necessary.
-- **Pixel Ratio**: Limit WebGL pixel ratio to `Math.min(window.devicePixelRatio, 2)` to prevent GPU throttling on 4K/Retina displays.
+Every track/world in BubbleKluv adheres to the following specification:
 
-### 2. File & Asset Conventions
-- **Skyboxes**: Cubemaps stored in `textures/skybox/<name>/` with 6 faces named `px.png`, `nx.png`, `py.png`, `ny.png`, `pz.png`, `nz.png`.
-- **Audio**: Audio files stored in `audio/` (`.mp3`). Must require user interaction before triggering `AudioContext.resume()`.
-- **Video**: Video textures stored in `public/media/` (`.mp4`) with `muted = true` and `playsInline = true` for mobile compatibility.
-
-### 3. ES Modules & Importmap
-- Never import Three.js via external CDN URLs at runtime.
-- Always use the local importmap defined in `index.html`:
-  ```json
-  {
-    "imports": {
-      "three": "./libs/three.module.js",
-      "three/addons/": "./libs/"
-    }
-  }
-  ```
+```javascript
+{
+  id: string,              // Unique identifier (e.g. 'club-entrance')
+  title: string,           // Track title (e.g. 'Wait For Me')
+  artist: string,          // Artist name (e.g. 'BubbleKluv')
+  audioSrc: string,        // Path to audio asset (e.g. 'audio/bubblekluv-waitforme.mp3')
+  skyboxFolder: string,    // Path to 6-face cubemap folder containing px, nx, py, ny, pz, nz
+  worldName: string,       // Name of Blockade Labs environment (e.g. 'Neon Club Entrance')
+  primaryColor: string,    // Primary CSS accent color (#00f3ff)
+  secondaryColor: string,  // Secondary CSS accent color (#ff00aa)
+  lightPrimary: number,    // Hex color for primary 3D directional light (0x00f3ff)
+  lightSecondary: number,  // Hex color for secondary 3D directional light (0xff00aa)
+  bubbleCount: number      // Number of interactive glass bubbles in this world
+}
+```
 
 ---
 
-## 🎮 First-Person Camera Specification
+## 🔄 AI Development Methodology & Workflow
 
-- **Camera Location**: Centered at origin `(0, 0, 0)`.
-- **Yaw**: Horizontal rotation (look left/right via `ArrowLeft`/`ArrowRight` or `A`/`D` or mouse horizontal drag).
-- **Pitch**: Vertical rotation (look up/down via `ArrowUp`/`ArrowDown` or `W`/`S` or mouse vertical drag).
-- **Pitch Limit**: Clamped strictly between `-83°` (`-1.45 rad`) and `+83°` (`+1.45 rad`) to prevent camera flipping.
+1. **Incremental Feature Commits**: Make atomic commits for UI, 3D Engine, and Audio changes.
+2. **Zero CDN Dependency**: Never inject CDN script tags at runtime. All imports must resolve via the importmap defined in `index.html`.
+3. **Syntax & Error Validation**: Run `node --check app.js` before committing any JavaScript changes.
+4. **VRAM Memory Lifecycle**: Always dispose existing textures, geometries, and materials when destroying or swapping 3D objects/skyboxes:
+   ```javascript
+   if (scene.background && scene.background.dispose) {
+     scene.background.dispose();
+   }
+   ```
+5. **Performance Budgets**:
+   - FPS Target: 60 FPS.
+   - Max Pixel Ratio: `Math.min(window.devicePixelRatio, 2)`.
+   - Max Active 3D Meshes per World: 100.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>BUBBLEKLUV | Experiencia 3D Interactiva</title>
+  <title>BUBBLEKLUV | Visual Album 3D Multiverse</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,30 +22,33 @@
   <!-- Contenedor Principal Three.js Canvas -->
   <div id="bubbles-container"></div>
 
+  <!-- Efecto de Destello Warp / Salto Cuántico -->
+  <div id="warpOverlay" class="warp-overlay"></div>
+
   <!-- Pantalla de Inicio / Splash Screen Overlay -->
   <div id="splash-screen" class="splash-overlay">
     <div class="splash-card">
-      <div class="brand-badge">PROYECTO 3D INTERACTIVO</div>
+      <div class="brand-badge">ÁLBUM VISUAL 3D MULTIVERSO</div>
       <h1 class="splash-title">BUBBLEKLUV</h1>
-      <p class="splash-subtitle">Sumérgete en un entorno 3D en primera persona con burbujas de cristal reactivas a la música, ambiente neon y pantalla de video.</p>
+      <p class="splash-subtitle">Explora una experiencia sonora 3D en 1ª persona. Cada canción es un mundo AI 360° con física de cristal y visualizadores reactivos.</p>
       
       <div class="splash-features">
         <div class="feature-item">
-          <span class="feature-icon">✨</span>
-          <span>Burbujas Reactivas al Ritmo</span>
+          <span class="feature-icon">🌌</span>
+          <span>Mundos 360° AI de Blockade Labs</span>
         </div>
         <div class="feature-item">
-          <span class="feature-icon">💥</span>
-          <span>Haz clic en las burbujas para explotarlas</span>
+          <span class="feature-icon">✨</span>
+          <span>Cristales Reactivos al Ritmo Musical</span>
         </div>
         <div class="feature-item">
           <span class="feature-icon">🕹️</span>
-          <span>Cámara 1ª Persona: Teclas (Arriba/Abajo/Izquierda/Derecha) o Ratón</span>
+          <span>Navegación FPS 1ª Persona (Teclado o Ratón)</span>
         </div>
       </div>
 
       <button id="startBtn" class="btn-primary glow-button">
-        <span>ENTRAR A LA EXPERIENCIA</span>
+        <span>ENTRAR AL MULTIVERSO</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"></polygon>
         </svg>
@@ -61,9 +64,10 @@
     </div>
 
     <div class="header-actions">
-      <button id="skyboxToggleBtn" class="hud-chip" title="Cambiar Entorno">
-        <span class="chip-icon">🌐</span>
-        <span id="skyboxName">Club Entrance</span>
+      <!-- Botón para Abrir Menú del Álbum Multiverso -->
+      <button id="drawerToggleBtn" class="hud-chip active" title="Ver Lista de Mundos / Canciones">
+        <span class="chip-icon">🌌</span>
+        <span>Álbum Multiverso</span>
       </button>
 
       <button id="autoRotateBtn" class="hud-chip active" title="Alternar Rotación Automática">
@@ -78,6 +82,20 @@
     </div>
   </header>
 
+  <!-- Modal / Drawer del Álbum Multiverso (Tracklist & Mundos) -->
+  <div id="multiverseDrawer" class="drawer-panel hidden">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <h2>Álbum Multiverso 3D</h2>
+        <p>Selecciona un mundo para viajar a la canción</p>
+      </div>
+      <button id="closeDrawerBtn" class="close-btn">&times;</button>
+    </div>
+    
+    <!-- Lista Dinámica de Canciones/Mundos -->
+    <div id="tracklistContainer" class="tracklist-container"></div>
+  </div>
+
   <!-- Modal / Panel de Instrucciones -->
   <div id="infoPanel" class="info-panel hidden">
     <div class="info-header">
@@ -88,7 +106,8 @@
       <li><kbd>&larr; &rarr; &uarr; &darr;</kbd> Mirar Izquierda / Derecha / Arriba / Abajo</li>
       <li><kbd>W A S D</kbd> Control de mira alternativo</li>
       <li><kbd>Click + Arrastrar</kbd> Mover la vista libremente</li>
-      <li><kbd>Click en Burbuja</kbd> Explotar burbuja con partículas</li>
+      <li><kbd>Click en Portal 3D</kbd> Teletransportarse al siguiente mundo</li>
+      <li><kbd>Click en Burbuja</kbd> Explotar cristal con partículas</li>
     </ul>
   </div>
 
@@ -100,8 +119,8 @@
       
       <div class="player-info">
         <div class="track-details">
-          <span class="track-title">BubbleKluv - Wait For Me</span>
-          <span class="track-status" id="trackStatus">Listo para reproducir</span>
+          <span class="track-title" id="trackTitle">Wait For Me</span>
+          <span class="world-badge" id="worldBadge">🌐 Neon Club Entrance</span>
         </div>
 
         <div class="time-display">
@@ -114,8 +133,14 @@
         <div class="progress-bar" id="progressBar"></div>
       </div>
 
-      <!-- Controles Multimedia -->
+      <!-- Controles Multimedia Multiverso -->
       <div class="hud-controls-row">
+        <!-- Canción Anterior -->
+        <button id="prevTrackBtn" class="icon-btn-hud" title="Canción Anterior / Mundo Anterior">
+          ⏮
+        </button>
+
+        <!-- Play / Pause -->
         <button id="playPauseBtn" class="play-btn" aria-label="Reproducir/Pausar">
           <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -126,15 +151,20 @@
           </svg>
         </button>
 
+        <!-- Canción Siguiente -->
+        <button id="nextTrackBtn" class="icon-btn-hud" title="Canción Siguiente / Mundo Siguiente">
+          ⏭
+        </button>
+
         <!-- Control de Volumen -->
         <div class="volume-control">
           <button id="muteBtn" class="icon-btn">🔊</button>
           <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
         </div>
 
-        <!-- Mute/Unmute Video Texture -->
+        <!-- Toggle Video TV 3D -->
         <button id="videoToggleBtn" class="hud-chip text-chip" title="Encender/Apagar TV 3D">
-          📺 TV Video: <span id="tvStatus">ON</span>
+          📺 TV: <span id="tvStatus">ON</span>
         </button>
       </div>
     </div>
