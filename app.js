@@ -18,11 +18,11 @@ const tracksConfig = [
     bubbleCount: 70,
     hasTvScreen: true,
     tvConfig: {
-      width: 26.95,
-      height: 16.89,
+      width: 16.45,
+      height: 10.15,
       posX: 24.85,
-      posY: -2.34,
-      posZ: 8.11,
+      posY: 0.98,
+      posZ: 2.86,
       rotY: -Math.PI / 2
     }
   },
@@ -218,6 +218,8 @@ function updateTvScreenPosition() {
   const track = tracksConfig[currentTrackIndex];
   if (track.hasTvScreen && track.tvConfig) {
     tvScreen.visible = true;
+    if (tvScreen.geometry) tvScreen.geometry.dispose();
+    tvScreen.geometry = new THREE.PlaneGeometry(track.tvConfig.width, track.tvConfig.height);
     tvScreen.position.set(track.tvConfig.posX, track.tvConfig.posY, track.tvConfig.posZ);
     tvScreen.rotation.y = track.tvConfig.rotY;
   } else {
