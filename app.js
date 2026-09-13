@@ -373,29 +373,121 @@ function travelToTrack(targetIndex) {
 }
 
 // ==========================================
-// 9. PARTÍCULAS DE EXPLOSIÓN
+// 9. PARTÍCULAS DE EXPLOSIÓN (ESTILO ANIME / MANGA)
 // ==========================================
 const particles = [];
-const particleGeometry = new THREE.SphereGeometry(0.12, 8, 8);
+
+// Geometrías reutilizables para optimizar VRAM y rendimiento
+const sparkDiamondGeo = new THREE.OctahedronGeometry(0.045);
+const sparkStarGeo = new THREE.TetrahedronGeometry(0.038);
+const sparkGlitterGeo = new THREE.DodecahedronGeometry(0.03);
+const ringGeometry = new THREE.RingGeometry(0.08, 0.22, 32);
+const spikeGeometry = new THREE.ConeGeometry(0.015, 0.35, 4);
+
+const animeColors = [0x00f3ff, 0xff00aa, 0xffea00, 0xffffff, 0xbf00ff, 0x00ff88];
 
 function createPopExplosion(position, color = 0x00f3ff) {
-  const particleCount = 24;
   const group = new THREE.Group();
   group.position.copy(position);
 
-  const mat = new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: 1 });
   const pData = [];
+  const particleCount = 55; // Alta densidad de micro-partículas anime
 
+  // 1. Anillo de onda de choque manga (Shockwave Ring)
+  const ringMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.95,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  const ringMesh = new THREE.Mesh(ringGeometry, ringMat);
+  ringMesh.lookAt(camera.position);
+  group.add(ringMesh);
+
+  pData.push({
+    mesh: ringMesh,
+    material: ringMat,
+    type: 'ring',
+    scaleSpeed: 0.22,
+    currentScale: 0.2
+  });
+
+  // 2. Líneas de impacto radiales (Anime Speed Spikes)
+  const spikeCount = 8;
+  for (let i = 0; i < spikeCount; i++) {
+    const spikeMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false
+    });
+    const spikeMesh = new THREE.Mesh(spikeGeometry, spikeMat);
+    
+    const angle = (i / spikeCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+    const phi = (Math.random() - 0.5) * Math.PI * 0.6;
+    const dir = new THREE.Vector3(
+      Math.cos(angle) * Math.cos(phi),
+      Math.sin(phi),
+      Math.sin(angle) * Math.cos(phi)
+    ).normalize();
+
+    spikeMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    group.add(spikeMesh);
+
+    pData.push({
+      mesh: spikeMesh,
+      material: spikeMat,
+      type: 'spike',
+      velocity: dir.clone().multiplyScalar(0.25 + Math.random() * 0.15)
+    });
+  }
+
+  // 3. Micro-partículas (Destellos, Diamantes y Estrellas)
   for (let i = 0; i < particleCount; i++) {
-    const pMesh = new THREE.Mesh(particleGeometry, mat);
+    const rGeo = Math.random();
+    let geo = sparkDiamondGeo;
+    if (rGeo > 0.66) geo = sparkStarGeo;
+    else if (rGeo > 0.33) geo = sparkGlitterGeo;
+
+    const pColor = (Math.random() < 0.4) 
+      ? color 
+      : animeColors[Math.floor(Math.random() * animeColors.length)];
+
+    const mat = new THREE.MeshBasicMaterial({
+      color: pColor,
+      transparent: true,
+      opacity: 1.0,
+      depthWrite: false
+    });
+
+    const pMesh = new THREE.Mesh(geo, mat);
+
     const dir = new THREE.Vector3(
       (Math.random() - 0.5) * 2,
       (Math.random() - 0.5) * 2,
       (Math.random() - 0.5) * 2
-    ).normalize().multiplyScalar(0.1 + Math.random() * 0.2);
+    ).normalize().multiplyScalar(0.15 + Math.random() * 0.45);
+
+    const rotVel = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.3,
+      (Math.random() - 0.5) * 0.3,
+      (Math.random() - 0.5) * 0.3
+    );
+
+    const initScale = 0.4 + Math.random() * 0.8;
+    pMesh.scale.setScalar(initScale);
 
     group.add(pMesh);
-    pData.push({ mesh: pMesh, velocity: dir });
+    pData.push({
+      mesh: pMesh,
+      material: mat,
+      type: 'particle',
+      velocity: dir,
+      rotVel: rotVel,
+      drag: 0.91 + Math.random() * 0.04,
+      initScale: initScale
+    });
   }
 
   scene.add(group);
@@ -407,14 +499,34 @@ function createPopExplosion(position, color = 0x00f3ff) {
 function updateParticles() {
   for (let i = particles.length - 1; i >= 0; i--) {
     const item = particles[i];
-    item.life -= 0.03;
+    item.life -= 0.035;
 
     item.pData.forEach(p => {
-      p.mesh.position.add(p.velocity);
-      p.mesh.material.opacity = item.life;
+      if (p.type === 'ring') {
+        p.currentScale += p.scaleSpeed;
+        p.mesh.scale.set(p.currentScale, p.currentScale, 1.0);
+        p.material.opacity = Math.max(0, item.life * 0.9);
+      } else if (p.type === 'spike') {
+        p.mesh.position.add(p.velocity);
+        p.velocity.multiplyScalar(0.88);
+        p.material.opacity = Math.max(0, item.life * item.life);
+      } else if (p.type === 'particle') {
+        p.mesh.position.add(p.velocity);
+        p.velocity.multiplyScalar(p.drag);
+        p.mesh.rotation.x += p.rotVel.x;
+        p.mesh.rotation.y += p.rotVel.y;
+        p.mesh.rotation.z += p.rotVel.z;
+        
+        const currentScale = p.initScale * Math.max(0, item.life);
+        p.mesh.scale.setScalar(currentScale);
+        p.material.opacity = Math.max(0, item.life);
+      }
     });
 
     if (item.life <= 0) {
+      item.pData.forEach(p => {
+        if (p.material) p.material.dispose();
+      });
       scene.remove(item.group);
       particles.splice(i, 1);
     }
@@ -448,20 +560,28 @@ function playPopSound() {
   if (!audioCtx) return;
   try {
     const osc = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.08);
+    osc.frequency.setValueAtTime(1400, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.09);
 
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(2800, audioCtx.currentTime);
+    osc2.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+
+    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.09);
 
     osc.connect(gain);
+    osc2.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.08);
+    osc2.start();
+    osc.stop(audioCtx.currentTime + 0.09);
+    osc2.stop(audioCtx.currentTime + 0.06);
   } catch (e) {}
 }
 
