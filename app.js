@@ -22,7 +22,7 @@ const tracksConfig = [
       height: 10.02,
       posX: 24.8,
       posY: 1.04,
-      posZ: -2.86,
+      posZ: 2.86,
       rotY: -Math.PI / 2
     }
   },
