@@ -18,11 +18,11 @@ const tracksConfig = [
     bubbleCount: 70,
     hasTvScreen: true,
     tvConfig: {
-      width: 17.0,
-      height: 9.8,
+      width: 16.37,
+      height: 10.02,
       posX: 24.8,
-      posY: 0.85,
-      posZ: 3.0,
+      posY: 1.04,
+      posZ: -2.86,
       rotY: -Math.PI / 2
     }
   },
