@@ -1,33 +1,24 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 // ==========================================
-// 1. ESCENA, CÁMARA Y RENDERIZADOR
+// 1. ESCENA, CÁMARA 1ª PERSONA Y RENDERIZADOR
 // ==========================================
 const container = document.getElementById('bubbles-container');
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 2, 22);
+// Ubicar la cámara en el centro de la escena (Vista 1ª Persona)
+camera.position.set(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 container.appendChild(renderer.domElement);
 
-// Controles OrbitControls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.maxDistance = 60;
-controls.minDistance = 3;
-controls.autoRotate = true;
-controls.autoRotateSpeed = 0.8;
-
 // ==========================================
-// 2. CUBEMAPS / SKYBOXES
+// 2. CUBEMAPS / SKYBOXES (HABITACIONES)
 // ==========================================
 const cubeLoader = new THREE.CubeTextureLoader();
 
@@ -55,7 +46,7 @@ let currentSkyboxName = 'Club Entrance';
 // ==========================================
 // 3. ILUMINACIÓN NEON & AMBIENTAL
 // ==========================================
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
 scene.add(ambientLight);
 
 const cyanLight = new THREE.DirectionalLight(0x00f3ff, 3.5);
@@ -93,24 +84,26 @@ const bubbleMaterial = new THREE.MeshPhysicalMaterial({
 for (let i = 0; i < numBubbles; i++) {
   const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial.clone());
   
-  const spread = 35;
-  const initialScale = 0.5 + Math.random() * 1.2;
-  
+  const distance = 4 + Math.random() * 20;
+  const theta = Math.random() * Math.PI * 2;
+  const phi = (Math.random() - 0.5) * Math.PI;
+
   bubble.position.set(
-    (Math.random() - 0.5) * spread,
-    (Math.random() - 0.5) * spread,
-    (Math.random() - 0.5) * spread
+    distance * Math.cos(phi) * Math.sin(theta),
+    distance * Math.sin(phi),
+    distance * Math.cos(phi) * Math.cos(theta)
   );
 
+  const initialScale = 0.4 + Math.random() * 1.1;
   bubble.scale.set(initialScale, initialScale, initialScale);
 
   bubble.userData = {
     baseScale: initialScale,
     targetScale: initialScale,
     movement: new THREE.Vector3(
-      (Math.random() - 0.5) * 0.025,
-      (Math.random() - 0.5) * 0.025,
-      (Math.random() - 0.5) * 0.025
+      (Math.random() - 0.5) * 0.02,
+      (Math.random() - 0.5) * 0.02,
+      (Math.random() - 0.5) * 0.02
     ),
     rotationSpeed: new THREE.Vector3(
       (Math.random() - 0.5) * 0.01,
@@ -138,14 +131,12 @@ const videoTexture = new THREE.VideoTexture(video);
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 
-// Pantalla principal de Video
 const screenWidth = 14;
 const screenHeight = 8;
 const screenGeometry = new THREE.PlaneGeometry(screenWidth, screenHeight);
 const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
 const tvScreen = new THREE.Mesh(screenGeometry, screenMaterial);
 
-// Marco / Bezel futurista del televisor
 const frameGeometry = new THREE.BoxGeometry(screenWidth + 0.8, screenHeight + 0.8, 0.4);
 const frameMaterial = new THREE.MeshStandardMaterial({
   color: 0x0a0f1d,
@@ -160,13 +151,98 @@ tvFrame.position.z = -0.25;
 const tvGroup = new THREE.Group();
 tvGroup.add(tvScreen);
 tvGroup.add(tvFrame);
-tvGroup.position.set(0, 2, -26);
+tvGroup.position.set(0, 0, -22);
 scene.add(tvGroup);
 
 let isTvPlaying = false;
 
 // ==========================================
-// 6. SISTEMA DE PARTÍCULAS (POP EXPLOSION)
+// 6. SISTEMA DE CONTROLES CÁMARA 1ª PERSONA (FPS)
+// ==========================================
+let yaw = 0;   // Ángulo horizontal (Izquierda / Derecha)
+let pitch = 0; // Ángulo vertical (Arriba / Abajo)
+
+const turnSpeed = 0.03;
+const mouseSensitivity = 0.003;
+
+let isLeftPressed = false;
+let isRightPressed = false;
+let isUpPressed = false;
+let isDownPressed = false;
+let isAutoRotating = true;
+
+// Eventos de teclado (Flechas y WASD)
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft' || e.code === 'KeyA') isLeftPressed = true;
+  if (e.key === 'ArrowRight' || e.code === 'KeyD') isRightPressed = true;
+  if (e.key === 'ArrowUp' || e.code === 'KeyW') isUpPressed = true;
+  if (e.key === 'ArrowDown' || e.code === 'KeyS') isDownPressed = true;
+});
+
+window.addEventListener('keyup', (e) => {
+  if (e.key === 'ArrowLeft' || e.code === 'KeyA') isLeftPressed = false;
+  if (e.key === 'ArrowRight' || e.code === 'KeyD') isRightPressed = false;
+  if (e.key === 'ArrowUp' || e.code === 'KeyW') isUpPressed = false;
+  if (e.key === 'ArrowDown' || e.code === 'KeyS') isDownPressed = false;
+});
+
+// Arrastre con ratón para mover la vista en 1ª Persona
+let isMouseDown = false;
+let mouseStartX = 0;
+let mouseStartY = 0;
+let startYaw = 0;
+let startPitch = 0;
+
+window.addEventListener('mousedown', (e) => {
+  if (e.target.closest('.hud-wrapper') || e.target.closest('.top-bar') || e.target.closest('.splash-overlay') || e.target.closest('.info-panel')) {
+    return;
+  }
+  isMouseDown = true;
+  mouseStartX = e.clientX;
+  mouseStartY = e.clientY;
+  startYaw = yaw;
+  startPitch = pitch;
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (isMouseDown) {
+    const deltaX = e.clientX - mouseStartX;
+    const deltaY = e.clientY - mouseStartY;
+    yaw = startYaw - deltaX * mouseSensitivity;
+    pitch = startPitch + deltaY * mouseSensitivity;
+    pitch = Math.max(-1.45, Math.min(1.45, pitch));
+  }
+});
+
+window.addEventListener('mouseup', () => { isMouseDown = false; });
+window.addEventListener('mouseleave', () => { isMouseDown = false; });
+
+// Touch Drag para pantallas táctiles en móviles
+window.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) {
+    if (e.target.closest('.hud-wrapper') || e.target.closest('.top-bar') || e.target.closest('.splash-overlay')) return;
+    isMouseDown = true;
+    mouseStartX = e.touches[0].clientX;
+    mouseStartY = e.touches[0].clientY;
+    startYaw = yaw;
+    startPitch = pitch;
+  }
+});
+
+window.addEventListener('touchmove', (e) => {
+  if (isMouseDown && e.touches.length === 1) {
+    const deltaX = e.touches[0].clientX - mouseStartX;
+    const deltaY = e.touches[0].clientY - mouseStartY;
+    yaw = startYaw - deltaX * mouseSensitivity;
+    pitch = startPitch + deltaY * mouseSensitivity;
+    pitch = Math.max(-1.45, Math.min(1.45, pitch));
+  }
+});
+
+window.addEventListener('touchend', () => { isMouseDown = false; });
+
+// ==========================================
+// 7. SISTEMA DE PARTÍCULAS (POP EXPLOSION)
 // ==========================================
 const particles = [];
 const particleGeometry = new THREE.SphereGeometry(0.12, 8, 8);
@@ -198,7 +274,6 @@ function createPopExplosion(position, color = 0x00f3ff) {
   scene.add(group);
   particles.push({ group, pData, life: 1.0 });
 
-  // Sonido de explosión sintetizado con Web Audio API
   playPopSound();
 }
 
@@ -220,7 +295,7 @@ function updateParticles() {
 }
 
 // ==========================================
-// 7. WEB AUDIO API & AUDIO VISUALIZER
+// 8. WEB AUDIO API & AUDIO VISUALIZER
 // ==========================================
 const audioElement = document.getElementById('audio');
 let audioCtx = null;
@@ -242,7 +317,6 @@ function initAudioContext() {
   dataArray = new Uint8Array(analyser.frequencyBinCount);
 }
 
-// Sintetizador de Sonido al explotar burbuja
 function playPopSound() {
   if (!audioCtx) return;
   try {
@@ -261,18 +335,14 @@ function playPopSound() {
 
     osc.start();
     osc.stop(audioCtx.currentTime + 0.08);
-  } catch (e) {
-    // Ignorar si el contexto de audio aún no se ha activado
-  }
+  } catch (e) {}
 }
 
-// Visualizador en Canvas HUD
 const eqCanvas = document.getElementById('equalizerCanvas');
 const eqCtx = eqCanvas.getContext('2d');
 
 function drawEqualizer() {
   if (!analyser || !dataArray) {
-    // Dibujar barras estáticas inactivas
     eqCtx.clearRect(0, 0, eqCanvas.width, eqCanvas.height);
     eqCtx.fillStyle = 'rgba(0, 243, 255, 0.2)';
     const barWidth = (eqCanvas.width / 32) - 2;
@@ -304,60 +374,44 @@ function drawEqualizer() {
 }
 
 // ==========================================
-// 8. INTERACCIÓN RAYCASTER (CLICK & HOVER)
+// 9. RAYCASTER PARA CLICK EN BURBUJAS
 // ==========================================
 const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-
-window.addEventListener('mousemove', (event) => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  raycaster.setFromCamera(mouse, camera);
-  const intersects = raycaster.intersectObjects(bubbles);
-
-  document.body.style.cursor = intersects.length > 0 ? 'pointer' : 'default';
-
-  bubbles.forEach(b => {
-    b.userData.isHovered = false;
-  });
-
-  if (intersects.length > 0) {
-    const hovered = intersects[0].object;
-    hovered.userData.isHovered = true;
-  }
-});
+const rayMouse = new THREE.Vector2();
 
 window.addEventListener('click', (event) => {
-  // Evitar clicks si se interactúa con el HUD de la interfaz
-  if (event.target.closest('.hud-wrapper') || event.target.closest('.top-bar') || event.target.closest('.splash-overlay')) {
+  if (event.target.closest('.hud-wrapper') || event.target.closest('.top-bar') || event.target.closest('.splash-overlay') || event.target.closest('.info-panel')) {
     return;
   }
 
-  raycaster.setFromCamera(mouse, camera);
+  rayMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  rayMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(rayMouse, camera);
   const intersects = raycaster.intersectObjects(bubbles);
 
   if (intersects.length > 0) {
     const clickedBubble = intersects[0].object;
     const pos = clickedBubble.position.clone();
     
-    // Crear explosión de partículas
     const popColor = Math.random() > 0.5 ? 0x00f3ff : 0xff00aa;
     createPopExplosion(pos, popColor);
 
-    // Reubicación de la burbuja que explotó
-    const spread = 35;
+    const distance = 4 + Math.random() * 20;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = (Math.random() - 0.5) * Math.PI;
+
     clickedBubble.position.set(
-      (Math.random() - 0.5) * spread,
-      (Math.random() - 0.5) * spread,
-      (Math.random() - 0.5) * spread
+      distance * Math.cos(phi) * Math.sin(theta),
+      distance * Math.sin(phi),
+      distance * Math.cos(phi) * Math.cos(theta)
     );
     clickedBubble.scale.set(0.1, 0.1, 0.1);
   }
 });
 
 // ==========================================
-// 9. CONTROLES DE INTERFAZ DE USUARIO (HUD)
+// 10. INTERFAZ DE USUARIO Y EVENTOS DE BOTÓN
 // ==========================================
 const splashOverlay = document.getElementById('splash-screen');
 const startBtn = document.getElementById('startBtn');
@@ -386,15 +440,22 @@ const infoToggleBtn = document.getElementById('infoToggleBtn');
 const infoPanel = document.getElementById('infoPanel');
 const closeInfoBtn = document.getElementById('closeInfoBtn');
 
-// Entrar a la Experiencia (Splash Screen)
-startBtn.addEventListener('click', () => {
+// BOTÓN "ENTRAR A LA EXPERIENCIA" (Garantizado)
+startBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  // Ocultar pantalla splash por completo
+  splashOverlay.style.display = 'none';
   splashOverlay.classList.add('hidden');
+
+  // Inicializar audio
   initAudioContext();
   if (audioCtx && audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
   
-  // Iniciar video y audio
+  // Iniciar reproducciones
   video.play().catch(() => {});
   isTvPlaying = true;
 
@@ -402,9 +463,11 @@ startBtn.addEventListener('click', () => {
     playIcon.classList.add('hidden');
     pauseIcon.classList.remove('hidden');
     trackStatus.textContent = 'Reproduciendo audio';
-  }).catch(err => {
+  }).catch(() => {
     trackStatus.textContent = 'Presiona Play para escuchar';
   });
+
+  window.focus();
 });
 
 // Play / Pause Toggle
@@ -427,7 +490,6 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-// Formatear Tiempo M:SS
 function formatTime(seconds) {
   if (isNaN(seconds)) return '0:00';
   const mins = Math.floor(seconds / 60);
@@ -435,7 +497,6 @@ function formatTime(seconds) {
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-// Actualizar Barra de Progreso y Tiempo
 audioElement.addEventListener('timeupdate', () => {
   const current = audioElement.currentTime;
   const total = audioElement.duration || 1;
@@ -446,7 +507,6 @@ audioElement.addEventListener('timeupdate', () => {
   durationEl.textContent = formatTime(total);
 });
 
-// Click en Barra de Progreso para Seek
 progressContainer.addEventListener('click', (e) => {
   const rect = progressContainer.getBoundingClientRect();
   const clickX = e.clientX - rect.left;
@@ -455,7 +515,6 @@ progressContainer.addEventListener('click', (e) => {
   audioElement.currentTime = seekTime;
 });
 
-// Volumen y Mute
 volumeSlider.addEventListener('input', (e) => {
   audioElement.volume = e.target.value;
   muteBtn.textContent = audioElement.volume === 0 ? '🔇' : '🔊';
@@ -473,7 +532,6 @@ muteBtn.addEventListener('click', () => {
   }
 });
 
-// Alternar Entorno Skybox
 skyboxToggleBtn.addEventListener('click', () => {
   if (currentSkyboxName === 'Club Entrance') {
     scene.background = skyboxCity;
@@ -485,13 +543,11 @@ skyboxToggleBtn.addEventListener('click', () => {
   skyboxNameEl.textContent = currentSkyboxName;
 });
 
-// Alternar Auto Órbita
 autoRotateBtn.addEventListener('click', () => {
-  controls.autoRotate = !controls.autoRotate;
-  autoRotateBtn.classList.toggle('active', controls.autoRotate);
+  isAutoRotating = !isAutoRotating;
+  autoRotateBtn.classList.toggle('active', isAutoRotating);
 });
 
-// Encender/Apagar Video TV 3D
 videoToggleBtn.addEventListener('click', () => {
   if (isTvPlaying) {
     video.pause();
@@ -506,7 +562,6 @@ videoToggleBtn.addEventListener('click', () => {
   }
 });
 
-// Panel de Información
 infoToggleBtn.addEventListener('click', () => {
   infoPanel.classList.toggle('hidden');
 });
@@ -514,16 +569,7 @@ closeInfoBtn.addEventListener('click', () => {
   infoPanel.classList.add('hidden');
 });
 
-// Controles por Teclado
-window.addEventListener('keydown', (e) => {
-  const rotateStep = 0.05;
-  if (e.key === 'ArrowRight') controls.azimuthAngle -= rotateStep;
-  if (e.key === 'ArrowLeft') controls.azimuthAngle += rotateStep;
-  if (e.key === 'ArrowUp') controls.polarAngle -= rotateStep;
-  if (e.key === 'ArrowDown') controls.polarAngle += rotateStep;
-});
-
-// Ajustar Tamaño de Ventana
+// Ajustar Tamaño de Ventana (Full Screen Resize)
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
@@ -531,7 +577,7 @@ window.addEventListener('resize', () => {
 });
 
 // ==========================================
-// 10. BUCLE DE ANIMACIÓN PRINCIPAL
+// 11. BUCLE DE ANIMACIÓN PRINCIPAL
 // ==========================================
 let clock = new THREE.Clock();
 
@@ -540,10 +586,28 @@ function animate() {
 
   const elapsedTime = clock.getElapsedTime();
 
-  // Actualizar Controles OrbitControls
-  controls.update();
+  // Actualizar rotación de cámara por teclado / auto-giro
+  if (isAutoRotating && !isMouseDown) {
+    yaw += 0.0015;
+  }
 
-  // Calcular Ritmo de Audio (Bass)
+  if (isLeftPressed) yaw += turnSpeed;
+  if (isRightPressed) yaw -= turnSpeed;
+  if (isUpPressed) pitch += turnSpeed;
+  if (isDownPressed) pitch -= turnSpeed;
+
+  // Limitar pitch entre -83° y +83° para no dar la vuelta boca abajo
+  pitch = Math.max(-1.45, Math.min(1.45, pitch));
+
+  // Actualizar vector de mirada de la cámara 1ª persona
+  const targetDirection = new THREE.Vector3(
+    Math.cos(pitch) * Math.sin(yaw),
+    Math.sin(pitch),
+    Math.cos(pitch) * Math.cos(yaw)
+  );
+  camera.lookAt(targetDirection);
+
+  // Audio Bass Frequency calculation
   let bassPulse = 0;
   if (analyser && dataArray && !audioElement.paused) {
     analyser.getByteFrequencyData(dataArray);
@@ -551,7 +615,7 @@ function animate() {
     for (let i = 0; i < 8; i++) {
       bassSum += dataArray[i];
     }
-    bassPulse = (bassSum / 8) / 255; // Rango 0.0 a 1.0
+    bassPulse = (bassSum / 8) / 255;
   }
 
   // Pulsación de Luces al Ritmo
@@ -559,38 +623,27 @@ function animate() {
   magentaLight.intensity = 3.5 + bassPulse * 3.0;
 
   // Animación de Burbujas
-  bubbles.forEach((bubble, index) => {
-    // Movimiento orgánico y flotación
+  bubbles.forEach((bubble) => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
     bubble.rotation.y += bubble.userData.rotationSpeed.y;
 
-    // Rebote suave en los límites
-    const limit = 20;
+    const limit = 22;
     if (Math.abs(bubble.position.x) > limit) bubble.userData.movement.x *= -1;
     if (Math.abs(bubble.position.y) > limit) bubble.userData.movement.y *= -1;
     if (Math.abs(bubble.position.z) > limit) bubble.userData.movement.z *= -1;
 
-    // Escala base + Pulsación de audio + Hover
     let targetS = bubble.userData.baseScale + bassPulse * 0.35;
-    if (bubble.userData.isHovered) {
-      targetS *= 1.35;
-    }
-
-    // Suavizado Lerp de la escala
     bubble.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.1);
   });
 
-  // Animación de Flotación para la TV Screen
-  tvGroup.position.y = 2 + Math.sin(elapsedTime * 1.5) * 0.3;
+  // Flotación TV Screen
+  tvGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.3;
 
-  // Actualizar partículas
+  // Partículas y ecualizador
   updateParticles();
-
-  // Dibujar ecualizador HUD
   drawEqualizer();
 
-  // Renderizar escena
   renderer.render(scene, camera);
 }
 

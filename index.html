@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>BUBBLEKLUV | Experiencia 3D Interactiva</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,12 +19,15 @@
   </script>
 </head>
 <body>
-  <!-- Pantalla de Inicio / Splash Screen -->
+  <!-- Contenedor Principal Three.js Canvas -->
+  <div id="bubbles-container"></div>
+
+  <!-- Pantalla de Inicio / Splash Screen Overlay -->
   <div id="splash-screen" class="splash-overlay">
     <div class="splash-card">
       <div class="brand-badge">PROYECTO 3D INTERACTIVO</div>
       <h1 class="splash-title">BUBBLEKLUV</h1>
-      <p class="splash-subtitle">Sumérgete en un entorno tridimensional con burbujas de cristal reactivas a la música, ambiente neon y pantalla de video.</p>
+      <p class="splash-subtitle">Sumérgete en un entorno 3D en primera persona con burbujas de cristal reactivas a la música, ambiente neon y pantalla de video.</p>
       
       <div class="splash-features">
         <div class="feature-item">
@@ -37,7 +40,7 @@
         </div>
         <div class="feature-item">
           <span class="feature-icon">🕹️</span>
-          <span>Navegación 360° Libre</span>
+          <span>Cámara 1ª Persona: Teclas (Arriba/Abajo/Izquierda/Derecha) o Ratón</span>
         </div>
       </div>
 
@@ -50,102 +53,96 @@
     </div>
   </div>
 
-  <!-- Contenedor Principal Three.js -->
-  <div id="bubbles-container">
-    
-    <!-- Top Navigation Bar -->
-    <header class="top-bar">
-      <div class="logo">
-        <span class="logo-dot"></span>
-        <span class="logo-text">BUBBLE<span class="highlight">KLUV</span></span>
-      </div>
-
-      <div class="header-actions">
-        <button id="skyboxToggleBtn" class="hud-chip" title="Cambiar Entorno">
-          <span class="chip-icon">🌐</span>
-          <span id="skyboxName">Club Entrance</span>
-        </button>
-
-        <button id="autoRotateBtn" class="hud-chip active" title="Alternar Rotación Automática">
-          <span class="chip-icon">🔄</span>
-          <span>Auto Órbita</span>
-        </button>
-
-        <button id="infoToggleBtn" class="hud-chip" title="Instrucciones de Control">
-          <span class="chip-icon">❓</span>
-          <span>Ayuda</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Modal / Panel de Instrucciones -->
-    <div id="infoPanel" class="info-panel hidden">
-      <div class="info-header">
-        <h3>Controles de Navegación</h3>
-        <button id="closeInfoBtn" class="close-btn">&times;</button>
-      </div>
-      <ul class="control-list">
-        <li><kbd>Click + Arrastrar</kbd> Rotar cámara 360°</li>
-        <li><kbd>Rueda Ratón</kbd> Zoom acercar/alejar</li>
-        <li><kbd>Click en Burbuja</kbd> Explotar burbuja con partículas</li>
-        <li><kbd>&larr; &rarr; &uarr; &darr;</kbd> Rotar cámara con teclado</li>
-      </ul>
+  <!-- Top Navigation Bar -->
+  <header class="top-bar">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      <span class="logo-text">BUBBLE<span class="highlight">KLUV</span></span>
     </div>
 
-    <!-- HUD Neon Player (Bottom Center) -->
-    <div class="hud-wrapper">
-      <div class="hud-card">
-        <!-- Visualizador de Audio Equalizer -->
-        <canvas id="equalizerCanvas" width="280" height="35"></canvas>
-        
-        <div class="player-info">
-          <div class="track-details">
-            <span class="track-title">BubbleKluv - Wait For Me</span>
-            <span class="track-status" id="trackStatus">Listo para reproducir</span>
-          </div>
+    <div class="header-actions">
+      <button id="skyboxToggleBtn" class="hud-chip" title="Cambiar Entorno">
+        <span class="chip-icon">🌐</span>
+        <span id="skyboxName">Club Entrance</span>
+      </button>
 
-          <div class="time-display">
-            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
-          </div>
-        </div>
+      <button id="autoRotateBtn" class="hud-chip active" title="Alternar Rotación Automática">
+        <span class="chip-icon">🔄</span>
+        <span>Auto Giro</span>
+      </button>
 
-        <!-- Barra de Progreso de Canción -->
-        <div class="progress-bar-container" id="progressContainer">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-
-        <!-- Controles Multimedia -->
-        <div class="hud-controls-row">
-          <button id="playPauseBtn" class="play-btn" aria-label="Reproducir/Pausar">
-            <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden">
-              <rect x="6" y="4" width="4" height="16"></rect>
-              <rect x="14" y="4" width="4" height="16"></rect>
-            </svg>
-          </button>
-
-          <!-- Control de Volumen -->
-          <div class="volume-control">
-            <button id="muteBtn" class="icon-btn">🔊</button>
-            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
-          </div>
-
-          <!-- Mute/Unmute Video Texture -->
-          <button id="videoToggleBtn" class="hud-chip text-chip" title="Encender/Apagar TV 3D">
-            📺 TV Video: <span id="tvStatus">ON</span>
-          </button>
-        </div>
-      </div>
+      <button id="infoToggleBtn" class="hud-chip" title="Instrucciones de Control">
+        <span class="chip-icon">❓</span>
+        <span>Ayuda</span>
+      </button>
     </div>
+  </header>
 
-    <!-- Audio Element Hidden -->
-    <audio id="audio" src="audio/bubblekluv-waitforme.mp3" preload="metadata"></audio>
-
+  <!-- Modal / Panel de Instrucciones -->
+  <div id="infoPanel" class="info-panel hidden">
+    <div class="info-header">
+      <h3>Controles Primera Persona</h3>
+      <button id="closeInfoBtn" class="close-btn">&times;</button>
+    </div>
+    <ul class="control-list">
+      <li><kbd>&larr; &rarr; &uarr; &darr;</kbd> Mirar Izquierda / Derecha / Arriba / Abajo</li>
+      <li><kbd>W A S D</kbd> Control de mira alternativo</li>
+      <li><kbd>Click + Arrastrar</kbd> Mover la vista libremente</li>
+      <li><kbd>Click en Burbuja</kbd> Explotar burbuja con partículas</li>
+    </ul>
   </div>
+
+  <!-- HUD Neon Player (Bottom Center) -->
+  <div class="hud-wrapper">
+    <div class="hud-card">
+      <!-- Visualizador de Audio Equalizer -->
+      <canvas id="equalizerCanvas" width="280" height="35"></canvas>
+      
+      <div class="player-info">
+        <div class="track-details">
+          <span class="track-title">BubbleKluv - Wait For Me</span>
+          <span class="track-status" id="trackStatus">Listo para reproducir</span>
+        </div>
+
+        <div class="time-display">
+          <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+        </div>
+      </div>
+
+      <!-- Barra de Progreso de Canción -->
+      <div class="progress-bar-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- Controles Multimedia -->
+      <div class="hud-controls-row">
+        <button id="playPauseBtn" class="play-btn" aria-label="Reproducir/Pausar">
+          <svg id="playIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <svg id="pauseIcon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+
+        <!-- Control de Volumen -->
+        <div class="volume-control">
+          <button id="muteBtn" class="icon-btn">🔊</button>
+          <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+        </div>
+
+        <!-- Mute/Unmute Video Texture -->
+        <button id="videoToggleBtn" class="hud-chip text-chip" title="Encender/Apagar TV 3D">
+          📺 TV Video: <span id="tvStatus">ON</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element Hidden -->
+  <audio id="audio" src="audio/bubblekluv-waitforme.mp3" preload="metadata"></audio>
 
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
