@@ -18,11 +18,11 @@ const tracksConfig = [
     bubbleCount: 70,
     hasTvScreen: true,
     tvConfig: {
-      width: 16.45,
-      height: 10.15,
-      posX: 24.85,
-      posY: 0.98,
-      posZ: 2.86,
+      width: 17.0,
+      height: 9.8,
+      posX: 24.8,
+      posY: 0.85,
+      posZ: 3.0,
       rotY: -Math.PI / 2
     }
   },
@@ -190,27 +190,96 @@ scene.add(portalRing);
 // ==========================================
 // 6. PANTALLA DE VIDEO 3D (ENCAJADA EN LA TELE CRT DEL CUBEMAP)
 // ==========================================
+// Canvas de respaldo retro CRT para garantizar visualización inmediata
+const tvCanvas = document.createElement('canvas');
+tvCanvas.width = 512;
+tvCanvas.height = 288;
+const tvCtx = tvCanvas.getContext('2d');
+
+function drawFallbackTvScreen() {
+  tvCtx.fillStyle = '#050b14';
+  tvCtx.fillRect(0, 0, tvCanvas.width, tvCanvas.height);
+
+  // Rejilla Neón Cyberpunk
+  tvCtx.strokeStyle = 'rgba(0, 243, 255, 0.3)';
+  tvCtx.lineWidth = 1;
+  for (let x = 0; x < tvCanvas.width; x += 32) {
+    tvCtx.beginPath();
+    tvCtx.moveTo(x, 0);
+    tvCtx.lineTo(x, tvCanvas.height);
+    tvCtx.stroke();
+  }
+  for (let y = 0; y < tvCanvas.height; y += 24) {
+    tvCtx.beginPath();
+    tvCtx.moveTo(0, y);
+    tvCtx.lineTo(tvCanvas.width, y);
+    tvCtx.stroke();
+  }
+
+  // Texto Neón Retro Stream
+  tvCtx.fillStyle = '#00f3ff';
+  tvCtx.font = 'bold 26px Outfit, sans-serif';
+  tvCtx.textAlign = 'center';
+  tvCtx.fillText('BUBBLEKLUV TV 3D', tvCanvas.width / 2, 120);
+
+  tvCtx.fillStyle = '#ff00aa';
+  tvCtx.font = 'bold 15px Outfit, sans-serif';
+  tvCtx.fillText('🔴 LIVE STREAM • AKIRA MODE', tvCanvas.width / 2, 160);
+
+  // Lineas de escaneo CRT Anime
+  tvCtx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+  for (let y = 0; y < tvCanvas.height; y += 4) {
+    tvCtx.fillRect(0, y, tvCanvas.width, 2);
+  }
+}
+drawFallbackTvScreen();
+
+const fallbackTexture = new THREE.CanvasTexture(tvCanvas);
+
+// Elemento Video HTML5
 const video = document.createElement('video');
-video.src = 'public/media/television.mp4';
 video.crossOrigin = 'anonymous';
 video.loop = true;
 video.muted = true;
 video.playsInline = true;
+video.setAttribute('playsinline', '');
+video.setAttribute('webkit-playsinline', '');
+video.style.display = 'none';
+document.body.appendChild(video);
+
+const videoSources = ['public/media/television.mp4', 'videos/background.mp4'];
+let currentVideoSrcIdx = 0;
+video.src = videoSources[0];
+video.load();
+
+video.addEventListener('error', () => {
+  currentVideoSrcIdx = (currentVideoSrcIdx + 1) % videoSources.length;
+  video.src = videoSources[currentVideoSrcIdx];
+  video.load();
+});
 
 const videoTexture = new THREE.VideoTexture(video);
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
 videoTexture.colorSpace = THREE.SRGBColorSpace;
 
-// Plano de pantalla ajustado exactamente al bisel azul del televisor CRT
 const firstTrack = tracksConfig[0];
 const screenGeometry = new THREE.PlaneGeometry(firstTrack.tvConfig.width, firstTrack.tvConfig.height);
-const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
-const tvScreen = new THREE.Mesh(screenGeometry, screenMaterial);
+const screenMaterial = new THREE.MeshBasicMaterial({ 
+  map: fallbackTexture, 
+  side: THREE.DoubleSide 
+});
 
+const tvScreen = new THREE.Mesh(screenGeometry, screenMaterial);
 tvScreen.position.set(firstTrack.tvConfig.posX, firstTrack.tvConfig.posY, firstTrack.tvConfig.posZ);
 tvScreen.rotation.y = firstTrack.tvConfig.rotY;
+tvScreen.renderOrder = 10;
 scene.add(tvScreen);
+
+video.addEventListener('playing', () => {
+  screenMaterial.map = videoTexture;
+  screenMaterial.needsUpdate = true;
+});
 
 let isTvPlaying = false;
 
@@ -930,6 +999,11 @@ function animate() {
     let targetS = bubble.userData.baseScale + bassPulse * 0.35;
     bubble.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.1);
   });
+
+  if (screenMaterial.map === fallbackTexture) {
+    drawFallbackTvScreen();
+    fallbackTexture.needsUpdate = true;
+  }
 
   updateParticles();
   drawEqualizer();
