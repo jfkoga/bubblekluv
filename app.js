@@ -15,7 +15,16 @@ const tracksConfig = [
     secondaryColor: '#ff00aa',
     lightPrimaryHex: 0x00f3ff,
     lightSecondaryHex: 0xff00aa,
-    bubbleCount: 70
+    bubbleCount: 70,
+    hasTvScreen: true,
+    tvConfig: {
+      width: 26.95,
+      height: 16.89,
+      posX: 24.85,
+      posY: -2.34,
+      posZ: 8.11,
+      rotY: -Math.PI / 2
+    }
   },
   {
     id: 'cyber-skyline',
@@ -28,7 +37,8 @@ const tracksConfig = [
     secondaryColor: '#3b82f6',
     lightPrimaryHex: 0xa855f7,
     lightSecondaryHex: 0x3b82f6,
-    bubbleCount: 85
+    bubbleCount: 85,
+    hasTvScreen: false
   },
   {
     id: 'retro-lounge',
@@ -41,7 +51,8 @@ const tracksConfig = [
     secondaryColor: '#fb8500',
     lightPrimaryHex: 0xffb703,
     lightSecondaryHex: 0xfb8500,
-    bubbleCount: 55
+    bubbleCount: 55,
+    hasTvScreen: false
   }
 ];
 
@@ -121,7 +132,6 @@ const bubbleMaterial = new THREE.MeshPhysicalMaterial({
 });
 
 function initBubbles(count) {
-  // Limpiar burbujas anteriores
   bubbles.forEach(b => scene.remove(b));
   bubbles = [];
 
@@ -178,7 +188,7 @@ portalRing.position.set(0, 0, -18);
 scene.add(portalRing);
 
 // ==========================================
-// 6. PANTALLA DE VIDEO 3D (TV SCREEN)
+// 6. PANTALLA DE VIDEO 3D (ENCAJADA EN LA TELE CRT DEL CUBEMAP)
 // ==========================================
 const video = document.createElement('video');
 video.src = 'public/media/television.mp4';
@@ -190,32 +200,30 @@ video.playsInline = true;
 const videoTexture = new THREE.VideoTexture(video);
 videoTexture.minFilter = THREE.LinearFilter;
 videoTexture.magFilter = THREE.LinearFilter;
+videoTexture.colorSpace = THREE.SRGBColorSpace;
 
-const screenWidth = 12;
-const screenHeight = 6.75;
-const screenGeometry = new THREE.PlaneGeometry(screenWidth, screenHeight);
+// Plano de pantalla ajustado exactamente al bisel azul del televisor CRT
+const firstTrack = tracksConfig[0];
+const screenGeometry = new THREE.PlaneGeometry(firstTrack.tvConfig.width, firstTrack.tvConfig.height);
 const screenMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, side: THREE.DoubleSide });
 const tvScreen = new THREE.Mesh(screenGeometry, screenMaterial);
 
-const frameGeometry = new THREE.BoxGeometry(screenWidth + 0.8, screenHeight + 0.8, 0.4);
-const frameMaterial = new THREE.MeshStandardMaterial({
-  color: 0x0a0f1d,
-  metalness: 0.9,
-  roughness: 0.2,
-  emissive: 0x00f3ff,
-  emissiveIntensity: 0.1
-});
-const tvFrame = new THREE.Mesh(frameGeometry, frameMaterial);
-tvFrame.position.z = -0.25;
-
-const tvGroup = new THREE.Group();
-tvGroup.add(tvScreen);
-tvGroup.add(tvFrame);
-tvGroup.position.set(16, 2, 0);
-tvGroup.rotation.y = -Math.PI / 2;
-scene.add(tvGroup);
+tvScreen.position.set(firstTrack.tvConfig.posX, firstTrack.tvConfig.posY, firstTrack.tvConfig.posZ);
+tvScreen.rotation.y = firstTrack.tvConfig.rotY;
+scene.add(tvScreen);
 
 let isTvPlaying = false;
+
+function updateTvScreenPosition() {
+  const track = tracksConfig[currentTrackIndex];
+  if (track.hasTvScreen && track.tvConfig) {
+    tvScreen.visible = true;
+    tvScreen.position.set(track.tvConfig.posX, track.tvConfig.posY, track.tvConfig.posZ);
+    tvScreen.rotation.y = track.tvConfig.rotY;
+  } else {
+    tvScreen.visible = false;
+  }
+}
 
 // ==========================================
 // 7. SISTEMA DE CONTROLES CÁMARA 1ª PERSONA (FPS)
@@ -276,7 +284,6 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('mouseup', () => { isMouseDown = false; });
 window.addEventListener('mouseleave', () => { isMouseDown = false; });
 
-// Touch Drag
 window.addEventListener('touchstart', (e) => {
   if (e.touches.length === 1) {
     if (e.target.closest('.hud-wrapper') || e.target.closest('.top-bar') || e.target.closest('.splash-overlay') || e.target.closest('.drawer-panel')) return;
@@ -313,10 +320,8 @@ function travelToTrack(targetIndex) {
 
   const track = tracksConfig[currentTrackIndex];
 
-  // Activar destello warp
   warpOverlay.classList.add('active');
 
-  // Animación FOV salto cuántico
   let fovStep = 0;
   function animateWarpOut() {
     fovStep += 0.1;
@@ -326,7 +331,6 @@ function travelToTrack(targetIndex) {
     if (fovStep < Math.PI / 2) {
       requestAnimationFrame(animateWarpOut);
     } else {
-      // Cambiar Entorno, Luces y Audio
       scene.background = getSkyboxTexture(track.skyboxFolder);
       primaryLight.color.setHex(track.lightPrimaryHex);
       secondaryLight.color.setHex(track.lightSecondaryHex);
@@ -334,6 +338,7 @@ function travelToTrack(targetIndex) {
       portalMaterial.emissive.setHex(track.lightPrimaryHex);
 
       initBubbles(track.bubbleCount);
+      updateTvScreenPosition();
       updateHUDTrackInfo();
 
       audioElement.src = track.audioSrc;
@@ -341,7 +346,6 @@ function travelToTrack(targetIndex) {
         audioElement.play().catch(() => {});
       }
 
-      // Animación FOV retorno
       animateWarpIn();
     }
   }
@@ -513,7 +517,6 @@ window.addEventListener('click', (event) => {
 
   raycaster.setFromCamera(rayMouse, camera);
 
-  // Click en Portal 3D -> Viajar al siguiente mundo
   const portalIntersects = raycaster.intersectObject(portalRing);
   if (portalIntersects.length > 0) {
     const nextIdx = (currentTrackIndex + 1) % tracksConfig.length;
@@ -521,7 +524,6 @@ window.addEventListener('click', (event) => {
     return;
   }
 
-  // Click en Burbujas -> Explosión de Partículas
   const bubbleIntersects = raycaster.intersectObjects(bubbles);
   if (bubbleIntersects.length > 0) {
     const clickedBubble = bubbleIntersects[0].object;
@@ -650,7 +652,6 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-// Canción Anterior / Siguiente
 prevTrackBtn.addEventListener('click', () => {
   const prevIdx = (currentTrackIndex - 1 + tracksConfig.length) % tracksConfig.length;
   travelToTrack(prevIdx);
@@ -661,7 +662,6 @@ nextTrackBtn.addEventListener('click', () => {
   travelToTrack(nextIdx);
 });
 
-// Al terminar canción, pasar al siguiente mundo automáticamente
 audioElement.addEventListener('ended', () => {
   const nextIdx = (currentTrackIndex + 1) % tracksConfig.length;
   travelToTrack(nextIdx);
@@ -717,12 +717,12 @@ autoRotateBtn.addEventListener('click', () => {
 videoToggleBtn.addEventListener('click', () => {
   if (isTvPlaying) {
     video.pause();
-    tvGroup.visible = false;
+    tvScreen.visible = false;
     isTvPlaying = false;
     tvStatusEl.textContent = 'OFF';
   } else {
     video.play();
-    tvGroup.visible = true;
+    updateTvScreenPosition();
     isTvPlaying = true;
     tvStatusEl.textContent = 'ON';
   }
@@ -749,6 +749,7 @@ window.addEventListener('resize', () => {
 });
 
 updateHUDTrackInfo();
+updateTvScreenPosition();
 
 // ==========================================
 // 13. BUCLE DE ANIMACIÓN PRINCIPAL
@@ -778,11 +779,9 @@ function animate() {
   );
   camera.lookAt(targetDirection);
 
-  // Animación Portal 3D Ring
   portalRing.rotation.z += 0.01;
   portalRing.rotation.x = Math.sin(elapsedTime) * 0.2;
 
-  // Audio Bass Frequency Calculation
   let bassPulse = 0;
   if (analyser && dataArray && !audioElement.paused) {
     analyser.getByteFrequencyData(dataArray);
@@ -793,11 +792,9 @@ function animate() {
     bassPulse = (bassSum / 8) / 255;
   }
 
-  // Pulsación de Luces al Ritmo
   primaryLight.intensity = 3.5 + bassPulse * 3.0;
   secondaryLight.intensity = 3.5 + bassPulse * 3.0;
 
-  // Animación de Burbujas
   bubbles.forEach((bubble) => {
     bubble.position.add(bubble.userData.movement);
     bubble.rotation.x += bubble.userData.rotationSpeed.x;
@@ -811,8 +808,6 @@ function animate() {
     let targetS = bubble.userData.baseScale + bassPulse * 0.35;
     bubble.scale.lerp(new THREE.Vector3(targetS, targetS, targetS), 0.1);
   });
-
-  tvGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.3;
 
   updateParticles();
   drawEqualizer();
