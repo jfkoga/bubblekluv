@@ -19,10 +19,10 @@ const tracksConfig = [
     hasTvScreen: true,
     tvConfig: {
       width: 16.37,
-      height: 10.02,
+      height: 9.69,
       posX: 24.8,
       posY: 1.04,
-      posZ: -2.91,
+      posZ: 2.88,
       rotY: -Math.PI / 2
     }
   },
