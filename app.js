@@ -18,10 +18,10 @@ const tracksConfig = [
     bubbleCount: 70,
     hasTvScreen: true,
     tvConfig: {
-      width: 16.37,
-      height: 9.69,
+      width: 16.32,
+      height: 9.20,
       posX: 24.8,
-      posY: 1.04,
+      posY: 1.31,
       posZ: 2.88,
       rotY: -Math.PI / 2
     }
@@ -815,6 +815,7 @@ startBtn.addEventListener('click', (e) => {
   
   video.play().catch(() => {});
   isTvPlaying = true;
+  updateTvScreenPosition();
 
   audioElement.play().then(() => {
     playIcon.classList.add('hidden');
